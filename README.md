@@ -74,6 +74,6 @@ third_party/  Leviathon（git submodule，GPLv3）
 
 - 解包逻辑移植自 [JodoZT/MHWNoChunk](https://github.com/JodoZT/MHWNoChunk) 与 [mhvuze/WorldChunkTool](https://github.com/mhvuze/WorldChunkTool)
 - THK 反编译：[AsteriskAmpersand/Leviathon](https://github.com/AsteriskAmpersand/Leviathon)，语言规范见 [MonsterHunterWorldModding Wiki](https://github.com/Ezekial711/MonsterHunterWorldModding/wiki/Leviathon-Language-Reference)
-- 黑龙社区资料：`黑龙THK注释.xlsx`、九世深渊《[黑龙AI重构的最后一块拼图](https://www.bilibili.com/opus/932887546921222162)》
+- 黑龙社区资料：`黑龙THK注释.xlsx`、九世深渊《[黑龙AI重构的最后一块拼图](https://www.bilibili.com/opus/932887546921222162)》《[黑龙开局不扇火的秘密](https://www.bilibili.com/opus/930951641929089095)》
 
 游戏数据版权归 CAPCOM 所有。本项目仅用于研究与学习。

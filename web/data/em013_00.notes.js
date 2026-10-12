@@ -39,8 +39,8 @@ MHWI.notes.em013_00 = {
 
   findings: [
     {
-      title: "开局不扇火：不是 15~18 秒，而是前 5 次 AI 出招",
-      body: "反编译游戏 exe 得到 10E() 的真实逻辑：**开局计数 < 5**。阈值 5 写在 em013.dtt_unq 调参表里（代码默认 3）。黑龙每切换到一个 AI 选择的新动作，计数 +1（转身、后退也算）；**二足咆哮**和动作自身衔接的后续段（如车的起手→冲刺→收招）不计。每次发现目标进入战斗时清零，所以丢失目标后重新发现，会再次获得 5 次开局保护。社区说的 15~18 秒，正好是 5 招左右的时长。",
+      title: "开局不扇火：不是计时，而是前 5 次 AI 出招",
+      body: "反编译游戏 exe 得到 10E() 的真实逻辑：**开局计数 < 5**。阈值 5 写在 em013.dtt_unq 调参表里（代码默认 3）。黑龙每切换到一个 AI 选择的新动作，计数 +1（转身、后退也算）；**二足咆哮**和动作自身衔接的后续段（如车的起手→冲刺→收招）不计。发现目标进入战斗时清零，但**同区域内还有猎人在它的仇恨列表里时不清零**：所以丢烟雾弹后重新索敌**不会**重置开局，用回归球离开再回来则会重置（都与九世深渊的实测一致）。社区说的 15~20 秒，正好是 5 招左右的时长。",
     },
     {
       title: "扇火有三个入口",
@@ -115,14 +115,18 @@ MHWI.notes.em013_00 = {
     { claim: "单火球+扇火连携（089）实机未使用", source: "xlsx", verdict: "ok", detail: "全项目没有任何节点调用 [[em013_55.node_089]]" },
     { claim: "139 在总控中没有导向节点", source: "xlsx", verdict: "partial", detail: "Combat_Main 确实不调用，但 Combat_Enter / Non_Combat_Main / Target_Lost 在任务 51612 中会调用 [[em013_55.node_139]]" },
     { claim: "骑乘攻击 12 次后吼", source: "xlsx", verdict: "ok", detail: "R12 ≥12 [[em013_11.node_017]]" },
-    { claim: "开局约 15~18 秒不扇火", source: "B站", verdict: "partial", detail: "现象吻合但机制不是计时：exe 中 10E() = 开局计数 < 5（em013.dtt_unq），计的是 AI 出招次数，咆哮与动作内部衔接不计；按每招约 3 秒，5 招≈15~18 秒" },
+    { claim: "开局约 15~18 秒不扇火", source: "B站", verdict: "partial", detail: "现象吻合但机制不是计时：exe 中 10E() = 开局计数 < 5（em013.dtt_unq），计的是 AI 出招次数，咆哮与动作内部衔接不计；按每招约 3 秒，5 招≈15~20 秒" },
     { claim: "function#10E()：黑龙开局 18s（或者 15s）", source: "xlsx", verdict: "partial", detail: "同上：是前 5 次 AI 出招，不是固定秒数；发现目标进入战斗时清零" },
+    { claim: "10E 是开局约 20 秒（小地图变红起算）；不拍怒等 5~6 招后也开始扇火", source: "B站", verdict: "partial", detail: "「5~6 招后开始扇火」正是 exe 中的计数阈值 5；按秒计时的结论是推断，实际计的是出招次数" },
+    { claim: "回归球会重置开局，短时间内 81 不扇火", source: "B站", verdict: "ok", detail: "exe：清零函数只在同区域没有仍在仇恨列表中的猎人时才清零；离开区域后重新被发现会清零" },
+    { claim: "丢烟雾弹黑龙会索敌，但不会重置开局，81 会继续扇火", source: "B站", verdict: "ok", detail: "exe：猎人仍在同区域且在仇恨列表中（仇恨值曾达阈值），清零被跳过。本项目此前写的「烟雾弹后会清零」是错误推断，已更正" },
     { claim: "function#112(0,1)：疑似角色滑坡或投石机全弹", source: "xlsx", verdict: "diff", detail: "exe：112(p1,p2) = p2 ≥ 自上次被钩爪猛撞倒地以来的出招计数，112(0,1) 即刚被钩爪猛撞倒地 [[em013_00.node_023]]" },
   ],
 
   references: [
     { title: "黑龙THK注释.xlsx", url: "https://github.com/TheLostRiver/mhwi-ai", note: "社区玩家的节点/寄存器/条件注释（本仓库根目录）" },
     { title: "九世深渊：黑龙AI重构的最后一块拼图，黑龙THK文件主要分支完全解读", url: "https://www.bilibili.com/opus/932887546921222162", note: "2024-05-21" },
+    { title: "九世深渊：黑龙开局不扇火的秘密，黑龙ai中10E条件解析", url: "https://www.bilibili.com/opus/930951641929089095", note: "2024-05-14；回归球/烟雾弹实测" },
     { title: "AsteriskAmpersand / Leviathon", url: "https://github.com/AsteriskAmpersand/Leviathon", note: "THK 编译/反编译器（GPLv3）" },
     { title: "Leviathon Language Reference", url: "https://github.com/Ezekial711/MonsterHunterWorldModding/wiki/Leviathon-Language-Reference", note: "nack 语言与执行语义" },
     { title: "MonsterHunterWorldModding Wiki", url: "https://github.com/Ezekial711/MonsterHunterWorldModding/wiki", note: "THK / 怪物 AI 资料汇总" },

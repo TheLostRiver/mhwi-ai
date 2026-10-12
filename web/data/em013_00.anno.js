@@ -154,7 +154,7 @@
     "self.enraged()": { zh: "愤怒", eval: (s) => !!s.enraged },
     "function#104()": { zh: "一阶段·目标在高台", src: "xlsx", toggle: true },
     "function#104(1)": { zh: "二三阶段·目标在高台", src: "xlsx", toggle: true },
-    "function#10E()": { zh: "开局保护：AI 出招计数 < 5", src: "exe", toggle: true, note: "exe 逆向：黑龙专属条件处理函数中 10E = 调参表 em013.dtt_unq 的阈值(5) > 开局计数。计数在每次切换到 AI 选择的新动作时 +1（上限 100），二足咆哮 L2_BIND_VOICE 和动作自身衔接的后续段不计；黑龙发现目标进入战斗(CombatFind/LeadFind)时清零。为真时扇火类节点改为随机出单火球/三连/地毯/直线火" },
+    "function#10E()": { zh: "开局保护：AI 出招计数 < 5", src: "exe", toggle: true, note: "exe 逆向：黑龙专属条件处理函数中 10E = 调参表 em013.dtt_unq 的阈值(5) > 开局计数。计数在每次切换到 AI 选择的新动作时 +1（上限 100），二足咆哮 L2_BIND_VOICE 和动作自身衔接的后续段不计；黑龙发现目标进入战斗(CombatFind/LeadFind)时清零，但同区域内有猎人仍在其仇恨列表中（仇恨值曾达阈值）时跳过清零：丢烟雾弹后重新索敌不清零，回归球离开再回来会清零。为真时扇火类节点改为随机出单火球/三连/地毯/直线火" },
     "function#10D()": { zh: "与目标之间有遮挡", src: "xlsx", toggle: true, note: "实测包括：躲在掩体后、攀附高台绳网、使用弩炮/速射炮、喝药磨刀被挡住视线等。为真时远距离大概率出车" },
     "function#102(3)": { zh: "一阶段·处于瓦砾区", src: "xlsx", toggle: true },
     "function#102(2)": { zh: "瓦砾区相关（副作用调用）", src: "推测", toggle: true },
