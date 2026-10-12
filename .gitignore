@@ -1,0 +1,13 @@
+# RAD Game Tools 专有库，请自行放置（见 README）
+oo2core_*.dll
+
+# 解包出的游戏原始文件与索引
+extracted/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.DS_Store
+Thumbs.db

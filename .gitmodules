@@ -1,0 +1,3 @@
+[submodule "third_party/Leviathon"]
+	path = third_party/Leviathon
+	url = https://github.com/AsteriskAmpersand/Leviathon.git

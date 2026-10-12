@@ -1,0 +1,5 @@
+# Leviathon 反编译器依赖（tools/decompile.py）
+construct
+sly==0.4
+regex
+networkx

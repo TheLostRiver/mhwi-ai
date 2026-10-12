@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>古龙研究档案 · MHWI 怪物 AI 解析</title>
+  <link rel="stylesheet" href="css/app.css?v=4">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="crest" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M32 4 L40 22 L60 24 L44 36 L50 58 L32 46 L14 58 L20 36 L4 24 L24 22 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="32" cy="32" r="6" fill="currentColor"/></svg>
+    </div>
+    <div class="masthead-title">
+      <div class="kicker">MONSTER HUNTER WORLD : ICEBORNE · THINK TABLE DOSSIER</div>
+      <h1 id="monster-title">古龙研究档案</h1>
+      <div class="sub" id="monster-sub">怪物 AI（THK）解析</div>
+    </div>
+    <nav class="monster-picker" id="monster-picker" aria-label="选择怪物"></nav>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="页签">
+    <a data-tab="overview">概览</a>
+    <a data-tab="sim">出招模拟</a>
+    <a data-tab="code">THK 代码</a>
+    <a data-tab="moves">招式表</a>
+    <a data-tab="sources">资料对照</a>
+    <span class="tab-ink" aria-hidden="true"></span>
+  </nav>
+
+  <main id="view" class="view" tabindex="-1"></main>
+
+  <footer class="colophon">
+    数据由游戏 chunk 解包后经 <a href="https://github.com/AsteriskAmpersand/Leviathon" target="_blank" rel="noopener">Leviathon</a> 反编译得到；概率由本页对 THK 全路径枚举精确计算。
+    <a href="https://github.com/TheLostRiver/mhwi-ai" target="_blank" rel="noopener">源码</a>
+  </footer>
+
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <div id="dex" class="dex"></div>
+
+  <script src="js/thk-core.js?v=4"></script>
+  <script src="data/monsters.js?v=4"></script>
+  <script src="js/ui.js?v=4"></script>
+  <script src="js/dex.js?v=4"></script>
+  <script src="js/view-overview.js?v=4"></script>
+  <script src="js/view-sim.js?v=4"></script>
+  <script src="js/view-code.js?v=4"></script>
+  <script src="js/view-moves.js?v=4"></script>
+  <script src="js/view-sources.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
+</body>
+</html>

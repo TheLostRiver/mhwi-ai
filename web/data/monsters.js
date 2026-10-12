@@ -1,0 +1,11 @@
+// 怪物清单：status=ready 的会加载 files 中的数据；group 用于图鉴分组
+MHWI.monsterGroups = ["古龙种", "飞龙种", "牙龙种", "牙兽种", "兽龙种", "鸟龙种", "海龙种", "蛇龙种", "鱼龙种", "甲虫种"];
+MHWI.monsters = [
+  {
+    key: "em013_00", zh: "黑龙", en: "Fatalis", group: "古龙种", status: "ready",
+    files: ["data/em013_00.js", "data/em013_00.anno.js", "data/em013_00.notes.js"],
+  },
+  { key: "em124_00", zh: "历战王冰咒龙", en: "Arch-Tempered Velkhana", group: "古龙种", status: "planned" },
+  { key: "em023_05", zh: "激昂金狮子", en: "Furious Rajang", group: "牙兽种", status: "planned" },
+  { key: "em057_00", zh: "雷狼龙", en: "Zinogre", group: "牙龙种", status: "planned" },
+];
