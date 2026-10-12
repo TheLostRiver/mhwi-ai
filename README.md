@@ -11,7 +11,9 @@
 
 ## 网页
 
-直接用浏览器打开 `web/index.html`（纯静态，无需服务器、无需构建）。
+**在线访问：<https://mhwi.helsincy.com>**
+
+本地使用：直接用浏览器打开 `web/index.html`（纯静态，无需服务器、无需构建）。
 
 - **概览**：一轮决策的完整流程、阶段血线、计数器、关键结论
 - **出招模拟**：在俯视罗盘上点选/拖动猎人站位，设定阶段、姿态、愤怒、HP、计数器与各种条件 → 精确出招概率（含连段）与完整决策路径；扇区热力图显示某招在各位置的出现概率；状态编码在 URL 里，可直接分享
@@ -44,6 +46,16 @@ node scripts/check.js em013_00
 node scripts/sim.js em013_00 phase=1 stance=l2 dist=1500 angle=0
 node scripts/report.js em013_00 docs/em013-fatalis.md
 ```
+
+## 部署
+
+网站部署在 Cloudflare Workers（静态资源 + 自定义域名 `mhwi.helsincy.com`，配置见 `wrangler.jsonc`）：
+
+```bash
+npx wrangler deploy        # 上传 web/ 目录；DNS 记录与证书由 Cloudflare 自动管理
+```
+
+修改 `web/` 下的 CSS/JS/数据后，把 `web/index.html` 里所有 `?v=` 版本号加一，避免浏览器使用旧缓存。
 
 新增一只怪物：完成 1~3 步，再写 `web/data/<key>.anno.js`（中文注释：动作、条件、寄存器、节点）与 `web/data/<key>.notes.js`（概览与资料对照），最后在 `web/data/monsters.js` 里把状态改为 `ready`。
 

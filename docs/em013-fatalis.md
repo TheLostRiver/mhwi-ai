@@ -1,6 +1,6 @@
 # 黑龙 Fatalis（em013_00）AI 解析
 
-> 交互版（出招模拟器、扇区热力图、带中文注释的 THK 代码）：打开 `web/index.html`。
+> 交互版（出招模拟器、扇区热力图、带中文注释的 THK 代码）：<https://mhwi.helsincy.com>（或本地打开 `web/index.html`）。
 > 本文所有概率都由 `scripts/sim.js` 对 THK 全部随机分支做**精确枚举**得出，可用下文命令复现。
 
 ## 1. 数据来源与方法
