@@ -39,6 +39,10 @@ MHWI.notes.em013_00 = {
 
   findings: [
     {
+      title: "开局不扇火：不是 15~18 秒，而是前 5 次 AI 出招",
+      body: "反编译游戏 exe 得到 10E() 的真实逻辑：**开局计数 < 5**。阈值 5 写在 em013.dtt_unq 调参表里（代码默认 3）。黑龙每切换到一个 AI 选择的新动作，计数 +1（转身、后退也算）；**二足咆哮**和动作自身衔接的后续段（如车的起手→冲刺→收招）不计。每次发现目标进入战斗时清零，所以丢失目标后重新发现，会再次获得 5 次开局保护。社区说的 15~18 秒，正好是 5 招左右的时长。",
+    },
+    {
       title: "扇火有三个入口",
       body: "① 主表直接扇火（[[em013_55.node_081]]，一阶段头前 20%）；② 连段：正面地毯**必接**扇火（[[em013_55.node_087]]），大拍/吐痰/孕吐 **35%** 接扇火，但都要求目标在**前方 180° 且距离 >800**；③ 受击追加。开局 10E() 期间所有扇火节点改为随机招。{{sim:ph=1&st=l2&d=1500&a=0&hp=100&heat=l2_special_wide_range_fire_shoot&rng=3500|看扇火热力图}}",
     },
@@ -111,7 +115,9 @@ MHWI.notes.em013_00 = {
     { claim: "单火球+扇火连携（089）实机未使用", source: "xlsx", verdict: "ok", detail: "全项目没有任何节点调用 [[em013_55.node_089]]" },
     { claim: "139 在总控中没有导向节点", source: "xlsx", verdict: "partial", detail: "Combat_Main 确实不调用，但 Combat_Enter / Non_Combat_Main / Target_Lost 在任务 51612 中会调用 [[em013_55.node_139]]" },
     { claim: "骑乘攻击 12 次后吼", source: "xlsx", verdict: "ok", detail: "R12 ≥12 [[em013_11.node_017]]" },
-    { claim: "开局约 15~18 秒不扇火", source: "B站", verdict: "partial", detail: "代码确认由 10E() 控制；时长由 exe 内函数决定，THK 中无法验证" },
+    { claim: "开局约 15~18 秒不扇火", source: "B站", verdict: "partial", detail: "现象吻合但机制不是计时：exe 中 10E() = 开局计数 < 5（em013.dtt_unq），计的是 AI 出招次数，咆哮与动作内部衔接不计；按每招约 3 秒，5 招≈15~18 秒" },
+    { claim: "function#10E()：黑龙开局 18s（或者 15s）", source: "xlsx", verdict: "partial", detail: "同上：是前 5 次 AI 出招，不是固定秒数；发现目标进入战斗时清零" },
+    { claim: "function#112(0,1)：疑似角色滑坡或投石机全弹", source: "xlsx", verdict: "diff", detail: "exe：112(p1,p2) = p2 ≥ 自上次被钩爪猛撞倒地以来的出招计数，112(0,1) 即刚被钩爪猛撞倒地 [[em013_00.node_023]]" },
   ],
 
   references: [
