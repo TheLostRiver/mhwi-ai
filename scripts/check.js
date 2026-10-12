@@ -4,6 +4,15 @@ const fs = require("fs");
 const path = require("path");
 const { load, ROOT } = require("./load");
 
+function findNack(dir, name) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) { const r = findNack(p, name); if (r) return r; }
+    else if (e.name === name) return p;
+  }
+  return null;
+}
+
 const key = process.argv[2] || "em013_00";
 const { project } = load(key);
 const globalFile = project.project.contexts.find((c) => c.context === "Global").file;
@@ -25,7 +34,10 @@ function segText(st, file, scope) {
 
 function printBody(body, file, scope, out) {
   for (const st of body) {
-    if (st.t === "seg") out.push(segText(st, file, scope));
+    if (st.t === "seg" && st.ew) {
+      const end = out.pop();
+      out.push(`${end === "endr" ? "endrwith" : "endwith"} ${segText(st, file, scope)}`);
+    } else if (st.t === "seg") out.push(segText(st, file, scope));
     else if (st.t === "conclude") out.push("conclude");
     else {
       st.br.forEach((br, i) => {
@@ -44,7 +56,7 @@ function printBody(body, file, scope, out) {
 let bad = 0;
 const scope = "fatalis";
 for (const [fk, f] of Object.entries(project.files)) {
-  const src = fs.readFileSync(path.join(ROOT, "data", key, fk + ".nack"), "utf8");
+  const src = fs.readFileSync(findNack(path.join(ROOT, "data", key), fk + ".nack"), "utf8");
   const scopeName = (src.match(/importactions \S+ as (\S+)/) || [])[1] || scope;
   const norm = (s) => s.trim().replace(/\s+/g, " ");
   // 原文: 把 "if X >> y" 这类同行写法拆成两行，便于比较

@@ -337,6 +337,8 @@
     monster: { key: "em013_00", em: "em013", zh: "黑龙", full: "黑龙 米拉博雷亚斯", en: "Fatalis", internalId: 101 },
     scope: "fatalis",
     actions, conditions, registers, contexts, nodes, glossary,
+    movesHeader: "招式（社区俗称）",
+    movesNote: "「招式」一列是社区俗称（参考 xlsx 与 B 站资料）。",
     entry: { file: M, node: "node_000" },
     // 模拟器状态
     state: {
@@ -347,6 +349,32 @@
         { id: 3, zh: "三阶段", hp: 45, note: "HP≤40%/25%/5% 各触发一次终极形态大招" },
       ],
       stances: [{ id: "l2", zh: "二足" }, { id: "l4", zh: "四足" }],
+      // 模拟器控件（URL 参数 ph / st / rage 与旧链接兼容）
+      controls: [
+        {
+          id: "ph", zh: "阶段",
+          options: [{ id: "1", zh: "一阶段", note: "HP≤77% 时转二阶段" }, { id: "2", zh: "二阶段", note: "HP≤49% 时转三阶段；开始累计起飞计数" }, { id: "3", zh: "三阶段", note: "HP≤40%/25%/5% 各触发一次终极形态大招" }],
+          get: (s) => String(s.phase),
+          set: (s, v) => { s.phase = +v; s.hp = { 1: 100, 2: 60, 3: 45 }[v]; },
+        },
+        {
+          id: "st", zh: "姿态",
+          options: [{ id: "l2", zh: "二足" }, { id: "l4", zh: "四足" }, { id: "fly", zh: "飞行" }],
+          get: (s) => (s.flying ? "fly" : s.stance),
+          set: (s, v) => { s.flying = v === "fly"; if (v !== "fly") s.stance = v; },
+        },
+      ],
+      checks: [{ id: "rage", key: "enraged", zh: "愤怒" }],
+      common: ["function#10E()", "function#10D()", "self.target.helpless_0()", "self.target(55)", "function#104()", "function#104(1)", "function#5D()", "self.part(1).is_broken(1)", "self.part(2).is_broken(1)", "function#102(3)"],
+      presets: [["头前 1500", 1500, 0], ["头下 600", 600, 0], ["胸侧 400", 400, 70], ["侧面 1200", 1200, 90], ["背后 800", 800, 180], ["远处 4000", 4000, 0]],
+    },
+    // 罗盘上的俯视示意轮廓（游戏单位，原点为判定视点，前方为 -y）
+    silhouette: (s) => {
+      const head = s.stance === "l4" && !s.flying ? 1150 : 900;
+      const body = [[0, -head - 120], [70, -head], [60, -head + 220], [110, -380], [230, -80], [210, 260], [90, 700], [40, 1500], [0, 2000]];
+      const span = s.flying ? 1900 : 1500;
+      const wing = (k) => [[150, -260], [span, -420], [span - 80, 120], [span * 0.6, 40], [span * 0.45, 420], [200, 260]].map(([x, y]) => [k * x, y]);
+      return [{ cls: "wing", pts: wing(1) }, { cls: "wing", pts: wing(-1) }, { cls: "body", pts: body, mirror: true }];
     },
     // 统计出招时忽略的动作类别（移动/转身后退）
     minorCats: ["move", "turn"],

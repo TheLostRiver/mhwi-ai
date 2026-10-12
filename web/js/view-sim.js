@@ -30,13 +30,17 @@
   }
 
   // ---------- URL 编码（便于分享某个状态） ----------
+  // 状态控件由各怪物注释的 state.controls（分段按钮）/ state.checks（勾选）描述
+  const controls = () => UI.ctx.anno.state.controls || [];
+  const checks = () => UI.ctx.anno.state.checks || [];
+
   function encodeState(st) {
     const s = st.s;
     const q = new URLSearchParams();
-    q.set("ph", s.phase); q.set("st", s.flying ? "fly" : s.stance);
+    for (const c of controls()) q.set(c.id, c.get(s));
     q.set("d", Math.round(s.dist)); q.set("a", Math.round(s.angle));
     if (s.vert) q.set("v", s.vert);
-    if (s.enraged) q.set("rage", 1);
+    for (const c of checks()) if (s[c.key]) q.set(c.id, 1);
     q.set("hp", s.hp);
     for (const [k, v] of Object.entries(s.regs)) if (v) q.set(k.replace("RegisterVar", "R"), v);
     const flags = Object.entries(s.flags).filter(([, v]) => v).map(([k]) => k);
@@ -49,12 +53,11 @@
     if (!str) return;
     const q = new URLSearchParams(str);
     const s = st.s;
-    if (q.has("ph")) s.phase = +q.get("ph");
-    if (q.has("st")) { const v = q.get("st"); s.flying = v === "fly"; if (v !== "fly") s.stance = v; }
+    for (const c of controls()) if (q.has(c.id)) c.set(s, q.get(c.id));
     if (q.has("d")) s.dist = +q.get("d");
     if (q.has("a")) s.angle = +q.get("a");
     s.vert = q.has("v") ? +q.get("v") : 0;
-    s.enraged = q.has("rage");
+    for (const c of checks()) s[c.key] = q.has(c.id);
     if (q.has("hp")) s.hp = +q.get("hp");
     s.regs = {};
     for (const [k, v] of q) if (/^R\d+$/.test(k)) s.regs["RegisterVar" + k.slice(1)] = +v;
@@ -73,24 +76,22 @@
 
   function heatCells(st) {
     const { project, anno } = UI.ctx;
-    const th = project._thresholds || (project._thresholds = MHWI.collectThresholds(project));
+    const th = project._thresholds || (project._thresholds = MHWI.collectThresholds(project, anno.entry));
     const dists = th.dist.filter((d) => d < st.range).concat([st.range]);
     const angs = th.angle;
     const cells = [];
     for (let i = 0; i < dists.length - 1; i++) {
-      const d0 = dists[i], d1 = dists[i + 1];
-      for (let j = 0; j < angs.length - 1; j++) {
-        const a0 = angs[j], a1 = angs[j + 1];
-        const state = { ...st.s, regs: { ...st.s.regs }, dist: (d0 + d1) / 2, angle: (a0 + a1) / 2 };
-        let p = 0;
-        if (st.heat) {
-          const results = MHWI.enumerate(project, anno, state, anno.entry);
-          for (const r of results) if (r.actions.some((a) => a.name === st.heat)) p += r.prob;
-        }
-        cells.push({ d0, d1, a0, a1, p });
-      }
+      for (let j = 0; j < angs.length - 1; j++) cells.push({ d0: dists[i], d1: dists[i + 1], a0: angs[j], a1: angs[j + 1], p: 0 });
     }
+    // 近处先算：玩家最关心的区域先出结果
     return cells;
+  }
+  function cellProb(st, c) {
+    const { project, anno } = UI.ctx;
+    const state = { ...st.s, regs: { ...st.s.regs }, dist: (c.d0 + c.d1) / 2, angle: (c.a0 + c.a1) / 2 };
+    let p = 0;
+    for (const r of MHWI.enumerate(project, anno, state, anno.entry, { lite: true })) if (r.actions.some((a) => a.name === st.heat)) p += r.prob;
+    return p;
   }
 
   // ---------- 几何 ----------
@@ -114,19 +115,14 @@
     return `rgba(255,${g},${b},0.85)`;
   }
 
-  /** 黑龙俯视示意轮廓（单位：游戏单位，原点为判定视点，前方为 -y） */
+  /** 怪物俯视示意轮廓：anno.silhouette(state) 返回 [{cls, pts:[[x,y]...], mirror}]（游戏单位，原点为判定视点，前方为 -y） */
   function silhouette(k, s) {
-    const quad = s.stance === "l4" && !s.flying;
-    const head = quad ? 1150 : 900;
-    const P = (x, y) => `${(C + x * k).toFixed(1)},${(C + y * k).toFixed(1)}`;
-    const body = [
-      [0, -head - 120], [70, -head], [60, -head + 220], [110, -380], [230, -80], [210, 260], [90, 700], [40, 1500], [0, 2000],
-    ];
-    const half = body.map(([x, y]) => P(x, y)).join(" ") + " " + body.slice().reverse().map(([x, y]) => P(-x, y)).join(" ");
-    const span = s.flying ? 1900 : 1500;
-    const wing = (sgn) => [[sgn * 150, -260], [sgn * span, -420], [sgn * (span - 80), 120], [sgn * (span * 0.6), 40], [sgn * (span * 0.45), 420], [sgn * 200, 260]]
-      .map(([x, y]) => P(x, y)).join(" ");
-    return `<polygon class="wing" points="${wing(1)}"/><polygon class="wing" points="${wing(-1)}"/><polygon class="body" points="${half}"/>`;
+    const P = ([x, y]) => `${(C + x * k).toFixed(1)},${(C + y * k).toFixed(1)}`;
+    const polys = UI.ctx.anno.silhouette ? UI.ctx.anno.silhouette(s) : [];
+    return polys.map((g) => {
+      const pts = g.mirror ? g.pts.concat(g.pts.slice().reverse().map(([x, y]) => [-x, y])) : g.pts;
+      return `<polygon class="${g.cls}" points="${pts.map(P).join(" ")}"/>`;
+    }).join("");
   }
 
   // ---------- 渲染 ----------
@@ -140,14 +136,15 @@
       <div class="sim reveal">
         <aside class="ctrl panel" id="sim-ctrl"></aside>
         <section class="panel radar-wrap">
-          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small><span class="info" data-tip="扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度从黑龙正面顺时针计（右侧为正）。距离为游戏单位（约 1 = 1cm）。">i</span></h2>
+          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small><span class="info" data-tip="扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度从${esc(UI.ctx.anno.monster.zh)}正面顺时针计（右侧为正）。距离为游戏单位（约 1 = 1cm）。">i</span></h2>
           <div class="readout" id="readout"></div>
           <svg class="radar" id="radar" viewBox="0 0 ${SIZE} ${SIZE}"></svg>
           <div class="radar-legend">
             <span>热力：</span><button type="button" class="dd-btn" id="heat-btn" aria-haspopup="listbox" aria-expanded="false"><i class="dd-swatch"></i><span class="dd-val"></span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
-            <span class="grad" data-tip="颜色：0% → 50% 及以上"></span><span class="dim">0~50%</span>
+            <span class="grad" data-tip="颜色：0% → 50% 及以上"></span><span class="dim">0~50%</span><span class="busy">计算中…</span>
             <span class="seg" id="range-seg">${RANGES.map((r) => `<button data-r="${r}">${r}</button>`).join("")}</span>
           </div>
+          ${UI.ctx.anno.simNote ? `<p class="sim-note">${esc(UI.ctx.anno.simNote)}</p>` : ""}
         </section>
         <section class="results panel" id="results"></section>
       </div>`;
@@ -174,22 +171,24 @@
   function renderControls() {
     const { anno } = UI.ctx;
     const s = st.s;
-    const phases = anno.state.phases.map((p) => `<button data-ph="${p.id}" class="${s.phase === p.id ? "on" : ""}" data-tip="${esc(p.note)}">${esc(p.zh)}</button>`).join("");
-    const stances = anno.state.stances.map((x) => `<button data-st="${x.id}" class="${!s.flying && s.stance === x.id ? "on" : ""}">${esc(x.zh)}</button>`).join("")
-      + `<button data-st="fly" class="${s.flying ? "on" : ""}">飞行</button>`;
+    const segs = controls().map((c) => {
+      const cur = c.get(s);
+      const btns = c.options.map((o) => `<button data-ctl="${esc(c.id)}" data-opt="${esc(o.id)}" class="${cur === o.id ? "on" : ""}"${o.note ? ` data-tip="${esc(o.note)}"` : ""}>${esc(o.zh)}</button>`).join("");
+      return `<div class="field"><span class="lbl">${esc(c.zh)}</span><div class="seg">${btns}</div></div>`;
+    }).join("");
+    const chks = checks().map((c) => `<div class="field"><label${c.note ? ` data-tip="${esc(c.note)}"` : ""}><input type="checkbox" data-check="${esc(c.key)}" ${s[c.key] ? "checked" : ""}> ${esc(c.zh)}</label></div>`).join("");
     const conds = Object.entries(anno.conditions || {}).filter(([, c]) => c.toggle);
-    const common = ["function#10E()", "function#10D()", "self.target.helpless_0()", "self.target(55)", "function#104()", "function#104(1)", "function#5D()", "self.part(1).is_broken(1)", "self.part(2).is_broken(1)", "function#102(3)"];
-    const toggle = ([raw, c]) => `<label data-tip="${esc((c.note || c.zh) + "  ·  " + raw)}"><input type="checkbox" data-flag="${esc(raw)}" ${s.flags[raw] ? "checked" : ""}><span>${esc(c.zh)} ${c.src ? `<span class="tag src-${esc(c.src)}">${esc(c.src)}</span>` : ""}<code>${esc(raw)}</code></span></label>`;
+    const common = anno.state.common || [];
+    const flagOn = (raw, c) => (raw in s.flags ? s.flags[raw] : !!c.default);
+    const toggle = ([raw, c]) => `<label data-tip="${esc((c.note || c.zh) + "  ·  " + raw)}"><input type="checkbox" data-flag="${esc(raw)}" ${flagOn(raw, c) ? "checked" : ""}><span>${esc(c.zh)} ${c.src ? `<span class="tag src-${esc(c.src)}">${esc(c.src)}</span>` : ""}<code>${esc(raw)}</code></span></label>`;
     const regs = Object.entries(anno.registers || {}).map(([k, r]) =>
       `<span data-tip="${esc(r.note || r.zh)}">${esc(r.zh)} <span class="rn">${k.replace("RegisterVar", "R")}</span></span>${UI.stepper({ min: 0, max: 99, step: 1, "data-reg": k, value: s.regs[k] || 0 })}`).join("");
-    const presets = [
-      ["头前 1500", 1500, 0], ["头下 600", 600, 0], ["胸侧 400", 400, 70], ["侧面 1200", 1200, 90], ["背后 800", 800, 180], ["远处 4000", 4000, 0],
+    const presets = anno.state.presets || [
+      ["头前 1500", 1500, 0], ["头下 600", 600, 0], ["侧面 1200", 1200, 90], ["背后 800", 800, 180], ["远处 4000", 4000, 0],
     ];
     UI.$("#sim-ctrl").innerHTML = `
       <h2>状态 <small>STATE</small></h2>
-      <div class="field"><span class="lbl">阶段</span><div class="seg" id="ph-seg">${phases}</div></div>
-      <div class="field"><span class="lbl">姿态</span><div class="seg" id="st-seg">${stances}</div></div>
-      <div class="field"><label><input type="checkbox" id="rage" ${s.enraged ? "checked" : ""}> 愤怒</label></div>
+      ${segs}${chks}
       <div class="field"><span class="lbl">HP <b id="hp-v" class="mono">${s.hp}%</b></span><input type="range" id="hp" min="0" max="100" value="${s.hp}" style="--fill:${s.hp}%"></div>
       <div class="field"><span class="lbl">猎人站位</span>
         <div class="row">${UI.stepper({ id: "dist", step: 50, min: 0, value: Math.round(s.dist) })} 距离</div>
@@ -206,12 +205,8 @@
     ctrl.onclick = (e) => {
       const b = e.target.closest("button");
       if (!b) return;
-      if (b.dataset.ph) {
-        s.phase = +b.dataset.ph;
-        s.hp = anno.state.phases.find((p) => p.id === s.phase).hp;
-      } else if (b.dataset.st) {
-        s.flying = b.dataset.st === "fly";
-        if (!s.flying) s.stance = b.dataset.st;
+      if (b.dataset.ctl) {
+        controls().find((c) => c.id === b.dataset.ctl).set(s, b.dataset.opt);
       } else if (b.dataset.pd) {
         s.dist = +b.dataset.pd; s.angle = +b.dataset.pa;
       } else if (b.id === "reset") {
@@ -231,7 +226,7 @@
       else if (t.id === "dist") s.dist = Math.max(0, +t.value || 0);
       else if (t.id === "angle") { s.angle = ((+t.value || 0) % 360 + 360) % 360; if (+t.value !== s.angle) t.value = s.angle; }
       else if (t.id === "vert") s.vert = +t.value || 0;
-      else if (t.id === "rage") s.enraged = t.checked;
+      else if (t.dataset.check) { checks().find((c) => c.key === t.dataset.check).apply?.(s, t.checked); s[t.dataset.check] = t.checked; }
       else if (t.dataset.flag) s.flags[t.dataset.flag] = t.checked;
       else if (t.dataset.reg) s.regs[t.dataset.reg] = +t.value || 0;
       else return;
@@ -243,7 +238,7 @@
   function buildRadar() {
     const svg = UI.$("#radar");
     const k = R / st.range;
-    const th = UI.ctx.project._thresholds || (UI.ctx.project._thresholds = MHWI.collectThresholds(UI.ctx.project));
+    const th = UI.ctx.project._thresholds || (UI.ctx.project._thresholds = MHWI.collectThresholds(UI.ctx.project, UI.ctx.anno.entry));
     const rings = th.dist.filter((d) => d > 0 && d <= st.range);
     const major = new Set([500, 900, 1000, 1500, 2000, 3500, 4500, 5000]);
     let g = `<g id="cells"></g>`;
@@ -292,7 +287,9 @@
     hunter.setAttribute("transform", `translate(${hx},${hy})`);
     UI.$("#sil").innerHTML = silhouette(k, s);
     const zone = UI.arcName(s.angle, s.angle).replace(/[（）]/g, "");
-    UI.$("#readout").innerHTML = `<span>距离 <b>${Math.round(s.dist)}</b></span><span>角度 <b>${Math.round(s.angle)}°</b> ${zone}</span><span>${s.flying ? "飞行" : s.stance === "l2" ? "二足" : "四足"} · ${UI.ctx.anno.state.phases.find((p) => p.id === s.phase).zh}${s.enraged ? " · 愤怒" : ""} · HP ${s.hp}%</span>`;
+    const tags = controls().map((c) => (c.options.find((o) => o.id === c.get(s)) || {}).zh)
+      .concat(checks().filter((c) => s[c.key]).map((c) => c.zh)).filter(Boolean).concat([`HP ${s.hp}%`]);
+    UI.$("#readout").innerHTML = `<span>距离 <b>${Math.round(s.dist)}</b></span><span>角度 <b>${Math.round(s.angle)}°</b> ${zone}</span><span>${esc(tags.join(" · "))}</span>`;
     renderResults();
     history.replaceState(null, "", `#/${UI.ctx.key}/sim/${encodeState(st)}`);
     if (recalcHeat) {
@@ -301,13 +298,37 @@
     }
   }
 
+  // 热力图分批计算：每批约 12ms，边算边上色；状态变化时作废旧任务
+  let heatGen = 0;
   function renderHeat() {
     UI.$("#heat-btn .dd-val").textContent = st.heat ? UI.actionZh(st.heat) : "（无）";
     UI.$$("#range-seg button").forEach((b) => b.classList.toggle("on", +b.dataset.r === st.range));
     const cells = heatCells(st);
     const k = R / st.range;
-    UI.$("#cells").innerHTML = cells.map((c) =>
-      `<path class="cell" d="${sector(c.d0 * k, c.d1 * k, c.a0, c.a1)}" fill="${heatColor(c.p)}"><title>${c.d0}~${c.d1} · ${c.a0}°~${c.a1}° · ${UI.pct(c.p)}</title></path>`).join("");
+    const box = UI.$("#cells");
+    box.innerHTML = cells.map((c, i) =>
+      `<path class="cell" data-i="${i}" d="${sector(c.d0 * k, c.d1 * k, c.a0, c.a1)}" fill="${heatColor(0)}"><title>${c.d0}~${c.d1} · ${c.a0}°~${c.a1}°</title></path>`).join("");
+    const gen = ++heatGen;
+    const els = box.children;
+    const wrap = UI.$(".radar-wrap");
+    if (!st.heat) { wrap && wrap.classList.remove("computing"); return; }
+    wrap && wrap.classList.add("computing");
+    let i = 0;
+    const step = () => {
+      if (gen !== heatGen || !els.length) return;
+      const t0 = performance.now();
+      while (i < cells.length && performance.now() - t0 < 12) {
+        const c = cells[i];
+        c.p = cellProb(st, c);
+        const el = els[i];
+        el.setAttribute("fill", heatColor(c.p));
+        el.firstChild.textContent = `${c.d0}~${c.d1} · ${c.a0}°~${c.a1}° · ${UI.pct(c.p)}`;
+        i++;
+      }
+      if (i < cells.length) setTimeout(step, 0);
+      else wrap && wrap.classList.remove("computing");
+    };
+    step();
   }
 
   /** 热力招式选择：按类别分组，组内按当前站位的出现概率排序 */

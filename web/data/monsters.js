@@ -6,6 +6,9 @@ MHWI.monsters = [
     files: ["data/em013_00.js", "data/em013_00.anno.js", "data/em013_00.notes.js"],
   },
   { key: "em124_00", zh: "历战王冰咒龙", en: "Arch-Tempered Velkhana", group: "古龙种", status: "planned" },
-  { key: "em023_05", zh: "激昂金狮子", en: "Furious Rajang", group: "牙兽种", status: "planned" },
+  {
+    key: "em023_05", zh: "激昂金狮子", en: "Furious Rajang", group: "牙兽种", status: "ready",
+    files: ["data/em023_05.js", "data/em023_05.anno.js", "data/em023_05.notes.js"],
+  },
   { key: "em057_00", zh: "雷狼龙", en: "Zinogre", group: "牙龙种", status: "planned" },
 ];

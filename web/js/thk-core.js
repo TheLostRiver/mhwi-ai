@@ -7,6 +7,7 @@
  *   无流程控制的函数是内联条件：为假则跳过本段剩余部分（副作用函数恒为假）
  *   >> 调用压栈，return 出栈；reset 回到当前上下文 THK 的第一个节点（= 本轮决策结束）
  *   节点执行到 endf 仍未 return 则停机（视为本轮结束）
+ *   anno.actions[name].effect(state, args) 可模拟动作对站位的影响（如冲刺接近后距离缩短）
  */
 (function (root) {
   "use strict";
@@ -113,6 +114,7 @@
     const maxSteps = opts.maxSteps || 4000;
     const maxDepth = opts.maxDepth || 64;
     const maxRepeat = opts.maxRepeat || 2;
+    const lite = !!opts.lite; // 只要动作序列与概率时不记录执行轨迹（热力图用）
 
     function execBody(body, where, depth) {
       for (const st of body) {
@@ -121,7 +123,9 @@
           if (st.fn !== undefined && !evalCond(st.fn, state, anno)) continue;
           if (st.act) {
             actions.push({ name: st.act.name, args: st.act.args, file: where.file, node: where.node, line: st.line });
-            trace.push({ file: where.file, node: where.node, line: st.line, kind: "act", name: st.act.name, depth });
+            if (!lite) trace.push({ file: where.file, node: where.node, line: st.line, kind: "act", name: st.act.name, depth });
+            const ae = anno && anno.actions && anno.actions[st.act.name];
+            if (ae && ae.effect) ae.effect(state, st.act.args);
           }
           if (st.call) {
             const sig = execNode(st.call.file, st.call.node, depth + 1);
@@ -132,7 +136,7 @@
           for (let i = 0; i < st.br.length; i++) {
             const br = st.br[i];
             if (br.c === null || evalCond(br.c, state, anno)) {
-              trace.push({ file: where.file, node: where.node, line: st.line, kind: "if", branch: i, cond: br.c, depth });
+              if (!lite) trace.push({ file: where.file, node: where.node, line: st.line, kind: "if", branch: i, cond: br.c, depth });
               const sig = execBody(br.b, where, depth);
               if (sig) return sig;
               break;
@@ -147,7 +151,7 @@
           decisions.push({ opts: nonzero, pick });
           const total = opts.normalize ? weights.reduce((a, b) => a + b, 0) : 100;
           prob *= weights[pick] / total;
-          trace.push({ file: where.file, node: where.node, line: st.line, kind: "rand", branch: pick, p: weights[pick], weights, depth });
+          if (!lite) trace.push({ file: where.file, node: where.node, line: st.line, kind: "rand", branch: pick, p: weights[pick], weights, depth });
           const sig = execBody(st.br[pick].b, where, depth);
           if (sig) return sig;
         } else if (st.t === "conclude") {
@@ -162,7 +166,7 @@
       const n = index[file] && index[file][node];
       if (!n) throw new Error(`找不到节点 ${file}.${node}`);
       const where = { file, node };
-      trace.push({ file, node, kind: "enter", depth });
+      if (!lite) trace.push({ file, node, kind: "enter", depth });
       for (let rep = 0; ; rep++) {
         const sig = execBody(n.body, where, depth);
         if (sig === "repeat") {
@@ -240,14 +244,14 @@
     };
   }
 
-  /** 收集项目里出现过的距离/角度阈值，用于把平面切成判定等价的扇区 */
-  function collectThresholds(project) {
+  /** 收集距离/角度阈值，用于把平面切成判定等价的扇区；给定 entry 时只看从入口可达的节点 */
+  function collectThresholds(project, entry) {
     const dist = new Set([0]);
     const ang = new Set([0, 360]);
     const visit = (s) => {
       if (!s) return;
       const c = parseCond(s);
-      if (c.type === "dist" && c.dim === "2d") dist.add(c.v);
+      if (c.type === "dist") dist.add(c.v);
       if (c.type === "angle") {
         const a = c.dir === "cw" ? c.a : (360 - c.b) % 360;
         const b = c.dir === "cw" ? c.b : (360 - c.a) % 360;
@@ -260,7 +264,23 @@
         if (st.br) for (const br of st.br) { visit(br.c); walk(br.b); }
       }
     };
-    for (const f of Object.values(project.files)) for (const n of f.nodes) walk(n.body);
+    if (entry) {
+      const index = project._index || (project._index = buildIndex(project));
+      const seen = new Set();
+      const stack = [[entry.file, entry.node]];
+      while (stack.length) {
+        const [f, n] = stack.pop();
+        const k = f + "." + n;
+        if (seen.has(k) || !index[f] || !index[f][n]) continue;
+        seen.add(k);
+        const body = index[f][n].body;
+        walk(body);
+        const calls = (b) => { for (const st of b) { if (st.call) stack.push([st.call.file, st.call.node]); if (st.br) st.br.forEach((br) => calls(br.b)); } };
+        calls(body);
+      }
+    } else {
+      for (const f of Object.values(project.files)) for (const n of f.nodes) walk(n.body);
+    }
     return { dist: [...dist].sort((a, b) => a - b), angle: [...ang].sort((a, b) => a - b) };
   }
 

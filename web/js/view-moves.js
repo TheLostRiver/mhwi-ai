@@ -21,10 +21,10 @@
       <div class="reveal">
         <div class="panel">
           <h2>招式表 <small>${names.length} 个动作</small></h2>
-          <p class="muted" style="margin:-4px 0 14px;font-size:13px">游戏没有面向玩家的官方招式名（猎人笔记只有怪物简介与攻略提示）。唯一的官方命名是 Capcom 写在游戏 exe 里的<b style="color:var(--verdigris);font-weight:600">内部动作名</b>，下表给出它与逐词直译；「招式」一列是社区俗称（参考 xlsx 与 B 站资料）。</p>
+          <p class="muted" style="margin:-4px 0 14px;font-size:13px">游戏没有面向玩家的官方招式名（猎人笔记只有怪物简介与攻略提示）。唯一的官方命名是 Capcom 写在游戏 exe 里的<b style="color:var(--verdigris);font-weight:600">内部动作名</b>，下表给出它与逐词直译；${esc(UI.ctx.anno.movesNote || "")}</p>
           <div class="seg" id="mv-cat" style="margin-bottom:14px">${Object.entries({ attack: "攻击", state: "状态切换", special: "特殊", turn: "转身/后退", move: "移动", all: "全部" })
             .map(([k, v]) => `<button data-c="${k}" class="${k === cat ? "on" : ""}">${v}</button>`).join("")}</div>
-          <table class="grid"><thead><tr><th>招式（社区俗称）</th><th>官方内部名</th><th>直译</th><th>类别</th><th>出现位置（点击查看代码）</th></tr></thead><tbody>${rows}</tbody></table>
+          <table class="grid"><thead><tr><th>${esc(UI.ctx.anno.movesHeader || "招式")}</th><th>官方内部名</th><th>直译</th><th>类别</th><th>出现位置（点击查看代码）</th></tr></thead><tbody>${rows}</tbody></table>
         </div>
       </div>`;
     UI.$("#mv-cat").onclick = (e) => { const b = e.target.closest("button"); if (b) { cat = b.dataset.c; render(view); } };

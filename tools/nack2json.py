@@ -11,6 +11,7 @@ AST 约定（body 为语句数组）:
   {"t":"if",   "br":[{"c":str|null, "b":body}, ...]}      # c 为 null 表示 else
   {"t":"rand", "br":[{"p":int, "b":body}, ...]}
   {"t":"conclude"}
+seg 上的 "ew":1 表示该段原文写作 endwith/endrwith（紧跟在前一个块之后执行）
 """
 import json
 import re
@@ -124,6 +125,9 @@ def parse_nack(path, file_key, scopes):
             line = line[m.end():]
         parts = split_segment(line.strip()) if line.strip() else {"fn": None, "act": None, "call": None, "dir": None, "meta": None}
         cond = parts.pop("fn") if flow in ("if", "elif") else None
+        if cond and parts["meta"]:
+            # 条件段上的 @ parameter2:N 属于条件本身（函数的第二参数）
+            cond, parts["meta"] = f"{cond} @ {parts['meta']}", None
         seg = make_seg(dict(parts, fn=None if flow in ("if", "elif") else parts["fn"]), file_key, scopes)
         has_payload = len(seg) > 1
 
@@ -147,7 +151,9 @@ def parse_nack(path, file_key, scopes):
             stack.pop()
             continue
         elif flow in ("endwith", "endrwith"):
-            raise ValueError(f"{path.name}:{lineno} 暂不支持 endwith")
+            # endwith X：块结束段本身还带内容，执行上等价于 endif 之后紧跟一段 X
+            stack.pop()
+            seg["ew"] = 1
 
         if has_payload:
             seg["line"] = lineno
@@ -179,14 +185,17 @@ def main():
         sys.exit(__doc__)
     key = sys.argv[1]
     src = REPO / "data" / key
-    fand = next(src.glob("*.fand"))
+    fand = next(src.rglob("*.fand"))
     project = parse_fand(fand)
     global_file = next(c["file"] for c in project["contexts"] if c["context"] == "Global")
     scopes = {"Global": global_file}
 
     files = {}
-    for nack in sorted(src.glob("*.nack")):
+    # 亚种的 thklst 会混用本体与原种的 THK（如 em023_05 引用 05/data 与 00/data），输出目录按路径分层
+    for nack in sorted(src.rglob("*.nack"), key=lambda q: q.stem):
         fk = nack.stem
+        if fk in files:
+            sys.exit(f"文件名重复: {fk}")
         files[fk] = {"nodes": parse_nack(nack, fk, scopes)}
 
     # 校验所有调用目标存在
