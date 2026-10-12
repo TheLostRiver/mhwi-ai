@@ -15,7 +15,7 @@
     const f = query.trim().toLowerCase();
     return MHWI.monsters.filter((m) =>
       (group === "全部" || m.group === group) &&
-      (!f || `${m.zh} ${m.en} ${m.key} ${m.group}`.toLowerCase().includes(f)));
+      (!f || `${m.zh} ${m.en} ${m.key} ${m.group} ${m.alias || ""}`.toLowerCase().includes(f)));
   }
 
   function renderGrid() {

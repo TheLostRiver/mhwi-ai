@@ -8,6 +8,7 @@
  *   >> 调用压栈，return 出栈；reset 回到当前上下文 THK 的第一个节点（= 本轮决策结束）
  *   节点执行到 endf 仍未 return 则停机（视为本轮结束）
  *   anno.actions[name].effect(state, args) 可模拟动作对站位的影响（如冲刺接近后距离缩短）
+ *   anno.repeatEnds 列出的节点 repeat 时视为「本轮结束、立即再来一轮」，结束标记为 again（避免两轮叠加导致路径爆炸）
  */
 (function (root) {
   "use strict";
@@ -115,6 +116,7 @@
     const maxDepth = opts.maxDepth || 64;
     const maxRepeat = opts.maxRepeat || 2;
     const lite = !!opts.lite; // 只要动作序列与概率时不记录执行轨迹（热力图用）
+    const repeatEnds = (anno && anno.repeatEnds) || [];
 
     function execBody(body, where, depth) {
       for (const st of body) {
@@ -170,6 +172,8 @@
       for (let rep = 0; ; rep++) {
         const sig = execBody(n.body, where, depth);
         if (sig === "repeat") {
+          // 上层节点只把它当作普通结束信号向上传递，不能再解释成自己的 repeat
+          if (repeatEnds.includes(file + "." + node)) return "again";
           if (rep >= maxRepeat) throw new Limit("repeat 循环（距离不变时会无限追击）");
           continue;
         }

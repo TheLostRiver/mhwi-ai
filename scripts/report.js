@@ -109,6 +109,22 @@ const REPORTS = {
     out.push(availability([["普通/愤怒", { enraged: false, pump: false }], ["超斗气硬化", { enraged: true, pump: true }]], { maxDist: 3000, outer: 3500, reachable: true }));
     return out;
   },
+  em124_00() {
+    const D = [[150, "≤200"], [500, "200~800"], [900, "800~1000"], [1250, "1000~1500"], [1850, "1500~2200"], [2800, "2200~3300"], [3800, ">3300"]];
+    const A = [[0, "正面 0°"], [90, "侧面 90°"], [180, "背后 180°"]];
+    const out = [];
+    out.push("> 以下表格由 `node scripts/report.js em124_00` 对 THK 全路径枚举精确计算生成：历战王任务、寄存器全为 0（不触发转阶段、额外横扫冰、压起身追加）、目标是猎人且 HP>50%、未飞行。每格列出本轮出招序列及概率（已略去移动/转身/滑步），`A→B` 表示同一轮内的连段。「中心」指冰呪龙离区域中心点 <750，「板边」指 >1500（R10=1）。模拟假设：猎人原地不动，冲刺接近后距离 = 停止距离。\n");
+    const combos = [
+      ["冰0", { ice: 0 }], ["冰1 怒前", { ice: 1 }], ["冰1 怒后", { ice: 1, enraged: true }],
+      ["冰2 中心·怒前", { ice: 2 }], ["冰2 中心·怒后", { ice: 2, enraged: true }],
+      ["冰2 板边·怒前", { ice: 2, centerDist: 2500 }], ["冰2 板边·怒后", { ice: 2, enraged: true, centerDist: 2500 }],
+    ];
+    for (const [title, over] of combos) out.push(table(title, over, D, A));
+    out.push("### 招式出现范围（各阶段下的最大出现概率）\n");
+    out.push("在 0~4400 距离、0~359° 的判定等价网格上逐格精确计算，取每个招式能达到的最大出现概率；`—` 表示该组合下主循环不会出这招。\n");
+    out.push(availability(combos, { maxDist: 4400, outer: 5000, reachable: true }));
+    return out;
+  },
 };
 if (!REPORTS[key]) throw new Error("没有为 " + key + " 配置报表");
 const out = REPORTS[key]();

@@ -355,7 +355,8 @@
     const seqs = res.sequences.slice(0, 40);
     const rows = seqs.map((q, i) => {
       const chips = q.actions.length ? q.actions.map((a) => UI.actionChip(a.name)).join('<span class="arrow">→</span>') : '<span class="dim">（本轮无攻击，仅移动/转身）</span>';
-      const end = q.end !== "reset" ? `<span class="end">[${esc(q.end)}]</span>` : "";
+      const endLabel = (UI.ctx.anno.endLabels || {})[q.end] || q.end;
+      const end = q.end !== "reset" ? `<span class="end">[${esc(endLabel)}]</span>` : "";
       return `<div class="seqrow ${st.open === i ? "open" : ""}" data-i="${i}"><div class="bar" style="width:${(q.prob * 100).toFixed(2)}%"></div><span class="pct">${UI.pct(q.prob)}</span><div class="chips">${chips}${end}</div></div>` +
         (st.open === i ? renderTrace(q.paths.sort((a, b) => b.prob - a.prob)[0]) : "");
     }).join("");

@@ -1,0 +1,209 @@
+importactions Velkhana as velkhana
+importlibrary Global as Global
+
+def node_000 @ 0
+	>> Global.node_047 
+	>> node_001 
+	if [RegisterVar11 >= 5] 
+		>> node_003 
+	elif [RegisterVar11 >= 1] 
+		>> node_002 
+	elif self.mounted() 
+		random (50) >> node_002 
+		elser (50) >> node_003 
+		endr 
+	else 
+		random (50) >> node_002 
+		elser (50) >> node_003 
+		endr 
+	endif 
+	reset 
+endf 
+
+def node_001 @ 1
+	if function#3B() 
+		if self.mount_staggered_twice() 
+			>> node_013 
+		endif 
+	else 
+		if self.mount_stabbed() 
+			if self.mounted() 
+				random (0) >> node_013 
+				elser (100) >> node_014 
+				endr 
+			else 
+				random (100) >> node_013 
+				elser (0) >> node_014 
+				endr 
+			endif 
+		elif self.mount_finisher_ready() 
+			if self.mounted() 
+				random (0) >> node_013 
+				elser (100) >> node_014 
+				endr 
+			else 
+				random (100) >> node_013 
+				elser (0) >> node_014 
+				endr 
+			endif 
+		else 
+			[RegisterVar11 |-] 
+			>> node_014 
+		endif 
+	endif 
+	return 
+endf 
+
+def node_002 @ 3
+	if [RegisterVar11 == 0] 
+		[RegisterVar11 ++] 
+	endif 
+	if [RegisterVar11 == 1] 
+		[RegisterVar11 ++] 
+		>> node_004 
+	endif 
+	if [RegisterVar11 == 2] 
+		[RegisterVar11 ++] 
+		>> node_004 
+	endif 
+	if [RegisterVar11 == 3] 
+		[RegisterVar11 ++] 
+		>> node_007 
+	endif 
+	[RegisterVar11 |-] 
+	return 
+endf 
+
+def node_003 @ 4
+	if [RegisterVar11 == 0] 
+		[RegisterVar11 ++] 
+		[RegisterVar11 ++] 
+		[RegisterVar11 ++] 
+		[RegisterVar11 ++] 
+		[RegisterVar11 ++] 
+	endif 
+	if [RegisterVar11 == 5] 
+		[RegisterVar11 ++] 
+		>> node_007 
+	endif 
+	if [RegisterVar11 == 6] 
+		[RegisterVar11 ++] 
+		>> node_004 
+	endif 
+	if [RegisterVar11 == 7] 
+		[RegisterVar11 ++] 
+		>> node_007 
+	endif 
+	[RegisterVar11 |-] 
+	return 
+endf 
+
+def node_004 @ 6
+	if self.mounted() 
+		>> node_005 
+	else 
+		>> node_006 
+	endif 
+	return 
+endf 
+
+def node_005 @ 7
+	if self.target_on_part(0) 
+		>> Global.node_352 
+	else 
+		>> Global.node_354 
+	endif 
+	return 
+endf 
+
+def node_006 @ 8
+	if self.target_on_part(0) 
+		>> Global.node_353 
+	else 
+		>> Global.node_355 
+	endif 
+	return 
+endf 
+
+def node_007 @ 10
+	if self.mounted() 
+		>> node_008 
+	else 
+		>> node_010 
+	endif 
+	return 
+endf 
+
+def node_008 @ 11
+	if function#29() 
+		self.targetArea(7) 
+		>> Global.node_356 
+		self.targetArea(15) 
+		if function#11(1000) 
+			>> node_009 
+		else 
+			>> node_005 
+		endif 
+	else 
+		>> node_005 
+	endif 
+	return 
+endf 
+
+def node_009 @ 12
+	if self.target_on_part(0) 
+		>> Global.node_358 
+	else 
+		>> Global.node_360 
+	endif 
+	return 
+endf 
+
+def node_010 @ 13
+	if function#29() 
+		self.targetArea(7) 
+		>> Global.node_356 
+		self.targetArea(15) 
+		if function#11(1000) 
+			>> node_011 
+		else 
+			>> node_006 
+		endif 
+	else 
+		>> node_006 
+	endif 
+	return 
+endf 
+
+def node_011 @ 14
+	if self.target_on_part(0) 
+		>> Global.node_359 
+	else 
+		>> Global.node_361 
+	endif 
+	return 
+endf 
+
+def node_012 @ 16
+	if self.mounted() 
+		>> Global.node_362 
+	else 
+	endif 
+	return 
+endf 
+
+def node_013 @ 18
+	>> Global.node_363 
+	return 
+endf 
+
+def node_014 @ 19
+	if self.fatigued() 
+		random (35) >> Global.node_362 
+		elser (65) 
+		endr 
+	else 
+	endif 
+	return 
+endf 
+

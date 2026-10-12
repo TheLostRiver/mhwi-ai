@@ -1,11 +1,14 @@
-// 怪物清单：status=ready 的会加载 files 中的数据；group 用于图鉴分组
+// 怪物清单：status=ready 的会加载 files 中的数据；group 用于图鉴分组；alias 为图鉴搜索别名
 MHWI.monsterGroups = ["古龙种", "飞龙种", "牙龙种", "牙兽种", "兽龙种", "鸟龙种", "海龙种", "蛇龙种", "鱼龙种", "甲虫种"];
 MHWI.monsters = [
   {
     key: "em013_00", zh: "黑龙", en: "Fatalis", group: "古龙种", status: "ready",
     files: ["data/em013_00.js", "data/em013_00.anno.js", "data/em013_00.notes.js"],
   },
-  { key: "em124_00", zh: "历战王冰咒龙", en: "Arch-Tempered Velkhana", group: "古龙种", status: "planned" },
+  {
+    key: "em124_00", zh: "历战王冰呪龙", en: "Arch-Tempered Velkhana", group: "古龙种", status: "ready", alias: "冰咒龙 王冰 Velkhana",
+    files: ["data/em124_00.js", "data/em124_00.anno.js", "data/em124_00.notes.js"],
+  },
   {
     key: "em023_05", zh: "激昂金狮子", en: "Furious Rajang", group: "牙兽种", status: "ready",
     files: ["data/em023_05.js", "data/em023_05.anno.js", "data/em023_05.notes.js"],
