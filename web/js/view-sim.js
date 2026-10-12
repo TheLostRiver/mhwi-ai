@@ -144,7 +144,7 @@
           <div class="readout" id="readout"></div>
           <svg class="radar" id="radar" viewBox="0 0 ${SIZE} ${SIZE}"></svg>
           <div class="radar-legend">
-            <span>热力：</span><select id="heat-sel"></select>
+            <span>热力：</span><button type="button" class="dd-btn" id="heat-btn" aria-haspopup="listbox" aria-expanded="false"><i class="dd-swatch"></i><span class="dd-val"></span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
             <span class="grad" data-tip="颜色：0% → 50% 及以上"></span><span class="dim">0~50%</span>
             <span class="seg" id="range-seg">${RANGES.map((r) => `<button data-r="${r}">${r}</button>`).join("")}</span>
           </div>
@@ -153,7 +153,7 @@
       </div>`;
     renderControls();
     buildRadar();
-    UI.$("#heat-sel").onchange = (e) => { st.heat = e.target.value; refresh(true); };
+    UI.$("#heat-btn").onclick = (e) => { e.stopPropagation(); openHeatMenu(); };
     UI.$("#range-seg").onclick = (e) => {
       const b = e.target.closest("button");
       if (!b) return;
@@ -181,7 +181,7 @@
     const common = ["function#10E()", "function#10D()", "self.target.helpless_0()", "self.target(55)", "function#104()", "function#104(1)", "function#5D()", "self.part(1).is_broken(1)", "self.part(2).is_broken(1)", "function#102(3)"];
     const toggle = ([raw, c]) => `<label data-tip="${esc((c.note || c.zh) + "  ·  " + raw)}"><input type="checkbox" data-flag="${esc(raw)}" ${s.flags[raw] ? "checked" : ""}><span>${esc(c.zh)} ${c.src ? `<span class="tag src-${esc(c.src)}">${esc(c.src)}</span>` : ""}<code>${esc(raw)}</code></span></label>`;
     const regs = Object.entries(anno.registers || {}).map(([k, r]) =>
-      `<span data-tip="${esc(r.note || r.zh)}">${esc(r.zh)} <span class="rn">${k.replace("RegisterVar", "R")}</span></span><input type="number" min="0" max="99" data-reg="${k}" value="${s.regs[k] || 0}">`).join("");
+      `<span data-tip="${esc(r.note || r.zh)}">${esc(r.zh)} <span class="rn">${k.replace("RegisterVar", "R")}</span></span>${UI.stepper({ min: 0, max: 99, step: 1, "data-reg": k, value: s.regs[k] || 0 })}`).join("");
     const presets = [
       ["头前 1500", 1500, 0], ["头下 600", 600, 0], ["胸侧 400", 400, 70], ["侧面 1200", 1200, 90], ["背后 800", 800, 180], ["远处 4000", 4000, 0],
     ];
@@ -190,11 +190,11 @@
       <div class="field"><span class="lbl">阶段</span><div class="seg" id="ph-seg">${phases}</div></div>
       <div class="field"><span class="lbl">姿态</span><div class="seg" id="st-seg">${stances}</div></div>
       <div class="field"><label><input type="checkbox" id="rage" ${s.enraged ? "checked" : ""}> 愤怒</label></div>
-      <div class="field"><span class="lbl">HP <b id="hp-v" class="mono">${s.hp}%</b></span><input type="range" id="hp" min="0" max="100" value="${s.hp}"></div>
+      <div class="field"><span class="lbl">HP <b id="hp-v" class="mono">${s.hp}%</b></span><input type="range" id="hp" min="0" max="100" value="${s.hp}" style="--fill:${s.hp}%"></div>
       <div class="field"><span class="lbl">猎人站位</span>
-        <div class="row"><input type="number" id="dist" step="50" min="0" value="${Math.round(s.dist)}"> 距离</div>
-        <div class="row" style="margin-top:6px"><input type="number" id="angle" step="5" min="0" max="359" value="${Math.round(s.angle)}"> 角度°</div>
-        <div class="row" style="margin-top:6px"><input type="number" id="vert" step="50" value="${s.vert || 0}"> 高度差</div>
+        <div class="row">${UI.stepper({ id: "dist", step: 50, min: 0, value: Math.round(s.dist) })} 距离</div>
+        <div class="row" style="margin-top:6px">${UI.stepper({ id: "angle", step: 5, value: Math.round(s.angle) })} 角度°</div>
+        <div class="row" style="margin-top:6px">${UI.stepper({ id: "vert", step: 50, value: s.vert || 0 })} 高度差</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">${presets.map(([n, d, a]) => `<button class="btn" data-pd="${d}" data-pa="${a}">${n}</button>`).join("")}</div>
       </div>
       <details class="fold"><summary>计数器（寄存器）</summary><div class="regs">${regs}</div></details>
@@ -229,7 +229,7 @@
       const t = e.target;
       if (t.id === "hp") { s.hp = +t.value; UI.$("#hp-v").textContent = s.hp + "%"; }
       else if (t.id === "dist") s.dist = Math.max(0, +t.value || 0);
-      else if (t.id === "angle") s.angle = ((+t.value || 0) % 360 + 360) % 360;
+      else if (t.id === "angle") { s.angle = ((+t.value || 0) % 360 + 360) % 360; if (+t.value !== s.angle) t.value = s.angle; }
       else if (t.id === "vert") s.vert = +t.value || 0;
       else if (t.id === "rage") s.enraged = t.checked;
       else if (t.dataset.flag) s.flags[t.dataset.flag] = t.checked;
@@ -302,21 +302,34 @@
   }
 
   function renderHeat() {
-    const sel = UI.$("#heat-sel");
-    const acts = UI.ctx.anno.actions || {};
-    const used = Object.keys(UI.ctx.xref.actionUses).filter((n) => !UI.isMinor(n));
-    used.sort((a, b) => UI.actionZh(a).localeCompare(UI.actionZh(b), "zh"));
-    sel.innerHTML = `<option value="">（无）</option>` + used.map((n) => `<option value="${n}" ${n === st.heat ? "selected" : ""}>${esc(UI.actionZh(n))}</option>`).join("");
+    UI.$("#heat-btn .dd-val").textContent = st.heat ? UI.actionZh(st.heat) : "（无）";
     UI.$$("#range-seg button").forEach((b) => b.classList.toggle("on", +b.dataset.r === st.range));
     const cells = heatCells(st);
     const k = R / st.range;
     UI.$("#cells").innerHTML = cells.map((c) =>
       `<path class="cell" d="${sector(c.d0 * k, c.d1 * k, c.a0, c.a1)}" fill="${heatColor(c.p)}"><title>${c.d0}~${c.d1} · ${c.a0}°~${c.a1}° · ${UI.pct(c.p)}</title></path>`).join("");
-    void acts;
+  }
+
+  /** 热力招式选择：按类别分组，组内按当前站位的出现概率排序 */
+  function openHeatMenu() {
+    const CAT = { attack: "攻击", state: "状态切换", special: "特殊" };
+    const used = Object.keys(UI.ctx.xref.actionUses).filter((n) => !UI.isMinor(n));
+    const p = (n) => st.marginal.get(n) || 0;
+    const items = [{ value: "", label: "（无）", group: "" }];
+    for (const [cat, title] of Object.entries(CAT)) {
+      used.filter((n) => UI.actionCat(n) === cat)
+        .sort((a, b) => p(b) - p(a) || UI.actionZh(a).localeCompare(UI.actionZh(b), "zh"))
+        .forEach((n) => items.push({ value: n, label: UI.actionZh(n), sub: n, group: title, meta: p(n) ? UI.pct(p(n)) : "—", dim: !p(n) }));
+    }
+    UI.dropdown.open(UI.$("#heat-btn"), {
+      items, value: st.heat, minWidth: 320, placeholder: "搜索招式（中文 / 内部名）", caption: "右侧数字：当前站位下本轮出这招的概率",
+      onSelect: (v) => { st.heat = v; refresh(true); },
+    });
   }
 
   function renderResults() {
     const res = run(st.s);
+    st.marginal = new Map(res.marginal);
     const box = UI.$("#results");
     const seqs = res.sequences.slice(0, 40);
     const rows = seqs.map((q, i) => {
