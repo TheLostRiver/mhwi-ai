@@ -216,6 +216,8 @@ body.dex-lock { overflow: hidden; }
 .tag.src-exe { border-color: #3f4f6a; color: #9db8e8; }
 .tag.src-攻略 { border-color: #5a3a3a; color: var(--rose); }
 .tag.src-Wiki { border-color: #4a4a5a; color: #c4b8e0; }
+.tag.src-腾讯 { border-color: #2f4a5a; color: #8fc4e0; }
+.tag.src-游民 { border-color: #5a4630; color: #e0a870; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 20px; background: rgba(255,91,31,.1); border: 1px solid rgba(255,91,31,.3); color: var(--bone); font-size: 12.5px; white-space: nowrap; }
 .chip.minor { background: transparent; border-color: var(--line); color: var(--bone-dim); }
 .chip.key { background: rgba(255,91,31,.22); border-color: var(--ember); box-shadow: 0 0 10px -2px var(--ember-glow); }

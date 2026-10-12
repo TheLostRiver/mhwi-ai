@@ -7,7 +7,7 @@
 | 黑龙 Fatalis（em013_00） | ✅ 已完成 | [docs/em013-fatalis.md](docs/em013-fatalis.md) |
 | 激昂金狮子 Furious Rajang（em023_05） | ✅ 已完成 | [docs/em023-furious-rajang.md](docs/em023-furious-rajang.md) |
 | 历战王冰呪龙 Arch-Tempered Velkhana（em124_00） | ✅ 已完成 | [docs/em124-at-velkhana.md](docs/em124-at-velkhana.md) |
-| 雷狼龙 Zinogre（em057_00） | 计划中 | |
+| 雷狼龙 Zinogre（em057_00） | ✅ 已完成 | [docs/em057-zinogre.md](docs/em057-zinogre.md) |
 
 ## 网页
 
@@ -50,6 +50,9 @@ node scripts/report.js em013_00 docs/em013-fatalis.md
 python tools/mhw_chunk.py extract "em/em023/0[05]/data/"
 python tools/decompile.py em023_05 && python tools/nack2json.py em023_05 && node scripts/check.js em023_05
 node scripts/sim.js em023_05 enraged=1 pump=1 dist=400 angle=90
+
+# 动作参数（.actp2）：按 Leviathon ActionDumps 的内部编号还原动作名，读取指定字段（如雷狼龙的电量增减）
+python tools/actp2.py extracted/em/em057/00/data/em057.actp2 94 mIncBarrierValue mDecBarrierValue
 ```
 
 ## 部署
@@ -67,7 +70,7 @@ npx wrangler deploy        # 上传 web/ 目录；DNS 记录与证书由 Cloudfl
 ## 目录
 
 ```
-tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）
+tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）、动作参数读取（actp2.py）
 scripts/      Node 端：往返校验、出招概率命令行、文档概率表生成
 data/<key>/   Leviathon 反编译结果（.fand / .nack）
 web/          交互网页；web/js/thk-core.js 是 THK 解释器（网页与脚本共用）
@@ -81,6 +84,7 @@ third_party/  Leviathon（git submodule，GPLv3）
 - THK 反编译：[AsteriskAmpersand/Leviathon](https://github.com/AsteriskAmpersand/Leviathon)，语言规范见 [MonsterHunterWorldModding Wiki](https://github.com/Ezekial711/MonsterHunterWorldModding/wiki/Leviathon-Language-Reference)
 - 黑龙社区资料：`黑龙THK注释.xlsx`、九世深渊《[黑龙AI重构的最后一块拼图](https://www.bilibili.com/opus/932887546921222162)》《[黑龙开局不扇火的秘密](https://www.bilibili.com/opus/930951641929089095)》
 - 历战王冰呪龙社区资料：`王冰THK注释.xlsx`、九世深渊《[雪花沉睡 历战王冰呪龙战斗AI全解析](https://www.bilibili.com/opus/953519534698921990)》
+- 雷狼龙资料：腾讯新闻 爱游戏的Solay《[雷狼龙超带电机制与连段解析](https://news.qq.com/rain/a/20200722A0WSR400)》、游民星空 SweetPotatoH「[超带电状态](https://www.gamersky.com/handbook/202005/1288897.shtml)」
 - 激昂金狮子资料：HK01、游民星空的攻略与 [Monster Hunter Wiki](https://monsterhunterwiki.org/wiki/Furious_Rajang_(MHWI))（见文档「与社区资料的对照」）
 - exe 类名：[Andoryuuta/MHW-DTI-Dumps](https://github.com/Andoryuuta/MHW-DTI-Dumps)
 

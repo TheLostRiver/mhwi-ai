@@ -125,6 +125,21 @@ const REPORTS = {
     out.push(availability(combos, { maxDist: 4400, outer: 5000, reachable: true }));
     return out;
   },
+  em057_00() {
+    const D = [[200, "≤350"], [600, "350~800"], [900, "800~1000"], [1800, "1000~2500"], [2800, "2500~3000"], [5000, "3000~8000"], [9000, ">8000"]];
+    const A = [[0, "正面 0°"], [80, "侧面 80°"], [180, "背后 180°"]];
+    const out = [];
+    out.push("> 以下表格由 `node scripts/report.js em057_00` 对 THK 全路径枚举精确计算生成：寄存器全为 0、目标是猎人且未倒地、非历战个体（B9 为假）、没有刚打出受击反击、雷狼龙 HP>40%。每格列出本轮出招序列及概率（已略去移动/转身/后撤/后跳），`A→B` 表示同一轮内的连段。模拟假设：猎人原地不动，冲刺/狐步接近后距离 = 停止距离，飞扑/捕食落地后视为贴身（400、正对）。\n");
+    const combos = [
+      ["未超带电", {}], ["未超带电·刚蓄电", { postCharge: true }], ["未超带电·疲劳", { fatigued: true }],
+      ["超带电·怒前", { charged: true }], ["超带电·怒后", { charged: true, enraged: true }],
+    ];
+    for (const [title, over] of combos) if (title !== "未超带电·疲劳") out.push(table(title, over, D, A));
+    out.push("### 招式出现范围（各状态下的最大出现概率）\n");
+    out.push("在 0~10000 距离、0~359° 的判定等价网格上逐格精确计算，取每个招式能达到的最大出现概率；`—` 表示该状态下主循环不会出这招。\n");
+    out.push(availability(combos, { maxDist: 9000, outer: 10000, reachable: true }));
+    return out;
+  },
 };
 if (!REPORTS[key]) throw new Error("没有为 " + key + " 配置报表");
 const out = REPORTS[key]();
