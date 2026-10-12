@@ -291,7 +291,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.015); }
 .finding .refs { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ---------- 模拟器 ---------- */
-.sim { display: grid; grid-template-columns: 300px minmax(420px, 1fr) 400px; gap: 20px; align-items: start; }
+.sim { display: grid; grid-template-columns: 300px minmax(420px, 1.25fr) minmax(400px, 1fr); gap: 20px; align-items: start; }
 .sim .ctrl { display: flex; flex-direction: column; gap: 16px; }
 .field label, .field .lbl { display: block; font: 12px var(--f-display); letter-spacing: .16em; color: var(--ash); margin-bottom: 6px; }
 .field .row { display: flex; gap: 8px; align-items: center; }
@@ -308,8 +308,10 @@ details.fold[open] summary::before { content: "▾ "; }
 .regs input { width: 64px; padding: 3px 6px; }
 .regs .rn { font: 10.5px var(--f-mono); color: var(--ash); }
 
-.radar-wrap { position: relative; }
-.radar { width: 100%; aspect-ratio: 1; display: block; cursor: crosshair; user-select: none; }
+/* 罗盘边长取「栏宽」与「视口高度减去页头和面板标题/图例」中较小者，任何屏幕都能完整显示；滚动时吸附在页签下方 */
+.radar-wrap { position: sticky; top: 56px; }
+.radar { width: min(100%, max(320px, calc(100vh - 340px))); aspect-ratio: 1; display: block; margin: 0 auto; cursor: crosshair; user-select: none; }
+.radar-wrap h2 .info { margin-left: auto; font: 12px var(--f-body); letter-spacing: 0; color: var(--ash); cursor: help; border: 1px solid var(--line); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; }
 .radar .ring { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar .ring.major { stroke: #5a4436; }
 .radar .ring-label { fill: var(--ash); font: 10px var(--f-mono); }
@@ -321,8 +323,11 @@ details.fold[open] summary::before { content: "▾ "; }
 .radar .hunter circle.core { fill: var(--ember); filter: drop-shadow(0 0 6px var(--ember)); }
 .radar .hunter circle.halo { fill: none; stroke: var(--ember); stroke-opacity: .6; animation: pulse 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes pulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
-.radar-legend { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--bone-dim); margin-top: 10px; flex-wrap: wrap; }
-.radar-legend .grad { width: 160px; height: 8px; background: linear-gradient(90deg, rgba(255,91,31,0), var(--ember) 55%, #fff1c9); border: 1px solid var(--line); }
+.radar-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--bone-dim); margin-top: 10px; flex-wrap: wrap; }
+.radar-legend select { max-width: 11em; }
+.radar-legend .grad { width: 72px; height: 8px; background: linear-gradient(90deg, rgba(255,91,31,0), var(--ember) 55%, #fff1c9); border: 1px solid var(--line); }
+.radar-legend .seg { margin-left: auto; }
+.radar-legend .seg button { padding: 6px 9px; font-size: 12px; }
 .readout { display: flex; gap: 14px; flex-wrap: wrap; font: 12.5px var(--f-mono); color: var(--bone-dim); margin-bottom: 10px; }
 .readout b { color: var(--bone); font-weight: 600; }
 
@@ -393,6 +398,7 @@ details.fold[open] summary::before { content: "▾ "; }
 @media (max-width: 1380px) {
   .sim { grid-template-columns: 280px 1fr; }
   .sim .results { grid-column: 1 / -1; }
+  .radar-wrap { position: relative; top: auto; } /* 结果栏排到下方时不吸附，否则会滑到结果栏底下 */
   .code { grid-template-columns: 260px 1fr; }
   .code .xref { grid-column: 2; }
 }

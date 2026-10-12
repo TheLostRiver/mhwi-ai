@@ -140,15 +140,14 @@
       <div class="sim reveal">
         <aside class="ctrl panel" id="sim-ctrl"></aside>
         <section class="panel radar-wrap">
-          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small></h2>
+          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small><span class="info" data-tip="扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度从黑龙正面顺时针计（右侧为正）。距离为游戏单位（约 1 = 1cm）。">i</span></h2>
           <div class="readout" id="readout"></div>
           <svg class="radar" id="radar" viewBox="0 0 ${SIZE} ${SIZE}"></svg>
           <div class="radar-legend">
             <span>热力：</span><select id="heat-sel"></select>
-            <span class="grad"></span><span class="dim">0 → ≥50%</span>
+            <span class="grad" data-tip="颜色：0% → 50% 及以上"></span><span class="dim">0~50%</span>
             <span class="seg" id="range-seg">${RANGES.map((r) => `<button data-r="${r}">${r}</button>`).join("")}</span>
           </div>
-          <p class="dim" style="font-size:12px;margin:10px 0 0">扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度为从黑龙正面顺时针（右侧为正）。距离单位为游戏单位（约 1 = 1cm）。</p>
         </section>
         <section class="results panel" id="results"></section>
       </div>`;
