@@ -220,6 +220,7 @@ body.dex-lock { overflow: hidden; }
 .tag.src-游民 { border-color: #5a4630; color: #e0a870; }
 .tag.src-rentry { border-color: #3f5a4f; color: #a8d8c0; }
 .tag.src-巴哈 { border-color: #4a3f5a; color: #c8b0e8; }
+.tag.src-实测 { border-color: #5a5530; color: #e8dc8c; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 20px; background: rgba(255,91,31,.1); border: 1px solid rgba(255,91,31,.3); color: var(--bone); font-size: 12.5px; white-space: nowrap; }
 .chip.minor { background: transparent; border-color: var(--line); color: var(--bone-dim); }
 .chip.key { background: rgba(255,91,31,.22); border-color: var(--ember); box-shadow: 0 0 10px -2px var(--ember-glow); }
