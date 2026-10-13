@@ -55,6 +55,10 @@ node scripts/sim.js em023_05 enraged=1 pump=1 dist=400 angle=90
 # 动作参数（.actp2）：按 Leviathon ActionDumps 的内部编号还原动作名，读取指定字段（如雷狼龙的电量增减）
 python tools/actp2.py extracted/em/em057/00/data/em057.actp2 94 mIncBarrierValue mDecBarrierValue
 
+# 任务数据（questData_*.mib）：列出含某怪物（内部编号，见 Leviathon common/monIds.txt）的任务与能力倍率
+python tools/mhw_chunk.py extract "quest/questData_[0-9]+\.mib$" && python tools/mhw_chunk.py extract "common/em/em_difficulty\.dtt_dif$"
+python tools/questdata.py 92
+
 # 打包 nack 给别人分析（保留空节点、编号 = 游戏原始序号）→ build/mhwi-nack.zip
 python tools/pack_nack.py
 ```
@@ -85,7 +89,7 @@ npx wrangler deploy        # 上传 web/ 目录；DNS 记录与证书由 Cloudfl
 ## 目录
 
 ```
-tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）、动作参数读取（actp2.py）、nack 打包（pack_nack.py）
+tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）、动作参数读取（actp2.py）、任务数据（questdata.py）、nack 打包（pack_nack.py）
 scripts/      Node 端：往返校验、出招概率命令行、文档概率表生成
 data/<key>/   Leviathon 反编译结果（.fand / .nack，默认编号，见「节点编号」）
 build/        打包输出（不入库）
@@ -104,5 +108,6 @@ third_party/  Leviathon（git submodule，GPLv3）
 - 雷狼龙资料：腾讯新闻 爱游戏的Solay《[雷狼龙超带电机制与连段解析](https://news.qq.com/rain/a/20200722A0WSR400)》、游民星空 SweetPotatoH「[超带电状态](https://www.gamersky.com/handbook/202005/1288897.shtml)」
 - 激昂金狮子资料：HK01、游民星空的攻略与 [Monster Hunter Wiki](https://monsterhunterwiki.org/wiki/Furious_Rajang_(MHWI))（见文档「与社区资料的对照」）
 - exe 类名：[Andoryuuta/MHW-DTI-Dumps](https://github.com/Andoryuuta/MHW-DTI-Dumps)
+- 任务数据布局：[AsteriskAmpersand/QuestDataDump](https://github.com/AsteriskAmpersand/QuestDataDump)；mib 密钥与 `em_difficulty.dtt_dif` 结构：[Synthlight/MHW-Editor](https://github.com/Synthlight/MHW-Editor)
 
 游戏数据版权归 CAPCOM 所有。本项目仅用于研究与学习。

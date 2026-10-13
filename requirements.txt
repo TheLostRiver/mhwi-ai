@@ -3,3 +3,6 @@ construct
 sly==0.4
 regex
 networkx
+
+# tools/questdata.py（任务数据 Blowfish 解密）
+cryptography>=43

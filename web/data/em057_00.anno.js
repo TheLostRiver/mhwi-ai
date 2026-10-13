@@ -156,13 +156,13 @@
     "self.target.pinned()": { zh: "捕食命中（目标被按住）", toggle: true },
     "self.target.helpless_1()": { zh: "被按住的目标无法挣脱", toggle: true },
     "self.target(55)": { zh: "钩爪挂在身上", toggle: true, note: "主控 node_000：直接走 G018 钩爪反击（冲撞/低身扫击/尾砸）" },
-    "self.target(0)": { zh: "目标状态 0（推测：攀爬/挂壁）", src: "推测", toggle: true },
-    "self.target(0) @ parameter2:1": { zh: "目标状态 0（参数 2 = 1）", src: "推测", toggle: true },
+    "self.target(0)": { zh: "目标状态 0（参数 2 ≠ 1，含义未确认）", src: "推测", toggle: true, note: "exe：self.target(N) 是通用函数 0x2E「目标状态 N」（0x141338000）。参数 2 = 1 时检查猎人攀附墙壁（见下一条）；参数 2 ≠ 1 时走另一段代码，未确认。THK 中导向跳上/跳下高处攻击" },
+    "self.target(0) @ parameter2:1": { zh: "猎人攀附在墙壁/藤蔓上", src: "exe", toggle: true, note: "exe：猎人 +0x8944 bit6，由攀墙（cActWallStart / cActWallMovingStart）、抓藤（cActWallGrabStart）、被打到墙上（cActDamageWall）等动作置位" },
     "self.target(3)": { zh: "目标状态 3（索敌相关）", toggle: true }, "self.target(4)": { zh: "目标状态 4（索敌相关）", toggle: true },
     "self.target(7)": { zh: "目标状态 7", toggle: true }, "self.target(10)": { zh: "目标状态 10", toggle: true },
     "self.target(11)": { zh: "目标状态 11", toggle: true }, "self.target(12)": { zh: "目标状态 12", toggle: true },
     "self.target(13)": { zh: "目标已力尽（推测）", src: "推测", toggle: true },
-    "self.target(14)": { zh: "目标状态 14（推测：攀爬/挂壁）", src: "推测", toggle: true },
+    "self.target(14)": { zh: "猎人乘翼龙/滑索移动中", src: "exe", toggle: true, note: "exe：猎人 +0x8944 bit4。是定时状态：翼龙移动开始（cActYokuryuStart）、滑索（cActRopeWay）、cActWallFastTravelGo 调用 0x141f70da0 写入时长并置位，到时清除" },
     "self.target(39)": { zh: "目标状态 39", toggle: true }, "self.target(52)": { zh: "目标状态 52", toggle: true },
     "self.target.in_combat()": { zh: "目标（怪物）在战斗中", toggle: true },
     "self.in_combat()": { zh: "自身在战斗中", toggle: true },
@@ -172,8 +172,8 @@
     "self.targetEnemy(target_em.any_monster)": { zh: "以附近的大型怪为目标" },
     "self.in_map(st.Ancient_Forest).in_area(2)": { zh: "位于古代树森林 区域 2", toggle: true },
     "self.in_map(st.Ancient_Forest).in_area(13)": { zh: "位于古代树森林 区域 13", toggle: true },
-    "self.in_map(st.Special_Arena).in_area(-1)": { zh: "位于斗技场", toggle: true },
-    "self.in_map(st.Challenge_Arena).in_area(-1)": { zh: "位于竞技场", toggle: true },
+    "self.in_map(st.Special_Arena).in_area(-1)": { zh: "位于特殊斗技场（st201）", toggle: true },
+    "self.in_map(st.Challenge_Arena).in_area(-1)": { zh: "位于斗技场（st202）", toggle: true, note: "Leviathon 称 Challenge_Arena；游戏内名称为「斗技场」（Arena）" },
   };
 
   // ---------- 寄存器 ----------
@@ -204,7 +204,7 @@
   [
     [0, "每轮总控", "103() 清连段标记 → G004 特定任务计数 → G136 反击追击 → node_001 大型怪/选目标 → 目标状态 3/4 索敌、钩爪 G018、12/14/11/0 高低差处理，否则 node_010 主攻击"],
     [1, "大型怪检查 + 选目标"], [2, "选目标（烟雾弹时索敌）"], [3, "目标状态 3/4：索敌"],
-    [4, "目标状态 12：跳上高处 / 飞扑"], [5, "目标状态 14：跳上高处"], [6, "目标状态 11：冲刺 + 飞扑"], [7, "目标状态 0：跳上/跳下高处"],
+    [4, "目标状态 12：跳上高处 / 飞扑"], [5, "目标状态 14（猎人乘翼龙/滑索）：跳上高处"], [6, "目标状态 11：冲刺 + 飞扑"], [7, "目标状态 0（参数 2 = 1 为猎人攀墙）：跳上/跳下高处"],
     [8, "烟雾弹：索敌"], [9, "疲劳喘气计数 R0", "R0≤3 时 +1，否则清零并喘气 G180（疲劳期间每 5 轮一次）"],
     [10, "主攻击流程", "高低差 >450 先冲刺；目标是随从猫 → node_061；开头侧跳 059/060 → 连段判定 022 → 按 超带电/目标倒地/愤怒/疲劳/距离（350/1000/3000/8000）查表 → 倒地追击 011"],
     [11, "倒地追击", "目标倒地时：未超带电 100% → 012（倒地追击蓄电）；超带电 50% → 012（追加攻击）"],
