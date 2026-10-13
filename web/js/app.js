@@ -57,24 +57,30 @@
   window.addEventListener("resize", moveInk);
 
   let lastRender = "";
+  let renderedSig = ""; // 已真正画到页面上的「怪物/页签」；视图过渡是异步的，可能落后于 lastRender
+  let routeGen = 0;
   async function route() {
+    const gen = ++routeGen;
     const { key, tab, params } = parseHash();
     const view = document.getElementById("view");
     try {
       await ensureMonster(key);
     } catch (e) {
+      if (gen !== routeGen) return;
       renderPicker(key);
       view.innerHTML = `<div class="panel">${UI.esc(e.message)}</div>`;
       return;
     }
+    if (gen !== routeGen) return; // 加载期间又跳转了，这次作废
     const v = MHWI.views[tab] || MHWI.views.overview;
     const sig = key + "/" + tab;
     // 同一页签内的参数变化交给视图自己处理，避免整页重绘丢失状态
-    if (sig === lastRender && v.update) { v.update(view, params); return; }
+    if (sig === lastRender && sig === renderedSig && v.update) { v.update(view, params); return; }
     const monsterChanged = !lastRender.startsWith(key + "/");
     lastRender = sig;
 
     const swap = () => {
+      if (gen !== routeGen) return; // 过渡回调执行前已有更新的跳转
       if (!UI.ctx || UI.ctx.key !== key) UI.setMonster(key);
       const a = UI.ctx.anno.monster || {};
       renderPicker(key);
@@ -88,12 +94,17 @@
       moveInk();
       view.innerHTML = "";
       v.render(view, params);
+      renderedSig = sig;
       if (monsterChanged) window.scrollTo({ top: 0 });
     };
     // 切怪物与切页签用不同的过渡（见 app.css 的 view-transition 部分）
     document.documentElement.dataset.swap = monsterChanged ? "monster" : "tab";
-    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(swap);
-    else swap();
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // 连续快速切页时上一个过渡会被跳过，其 Promise 以 AbortError 拒绝，属正常情况
+      const t = document.startViewTransition(swap);
+      t.ready.catch(() => {});
+      t.finished.catch(() => {});
+    } else swap();
   }
 
   window.addEventListener("hashchange", route);

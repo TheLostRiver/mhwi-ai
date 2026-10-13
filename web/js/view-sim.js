@@ -301,6 +301,7 @@
   // 热力图分批计算：每批约 12ms，边算边上色；状态变化时作废旧任务
   let heatGen = 0;
   function renderHeat() {
+    if (!UI.$("#heat-btn")) return; // 定时器触发前已离开模拟页
     UI.$("#heat-btn .dd-val").textContent = st.heat ? UI.actionZh(st.heat) : "（无）";
     UI.$$("#range-seg button").forEach((b) => b.classList.toggle("on", +b.dataset.r === st.range));
     const cells = heatCells(st);
