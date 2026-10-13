@@ -30,9 +30,9 @@
   // ---------- 动作 ----------
   const actions = {
     // 蓄电（电量 0~100，每 25 为社区所说的「一层/一个单位」）
-    lightning_charge_min: { zh: "小蓄电（+25）", cat: "state", key: true, note: "actp2：mIncBarrierValue 25。社区：抬头蓄电，时间长" },
-    short_lightning_charge: { zh: "倒地追击蓄电（+25）", cat: "state", key: true, note: "actp2：SHORT_LIGHTNING_CHARGE +25。只在目标倒地（helpless_0）且未超带电时出现（主控 node_013~015）" },
-    lightning_charge_max: { zh: "大蓄电（+50）", cat: "state", key: true, note: "actp2：+50。只出现在连段末尾（前顶→后跳→飞扑→大蓄电 等）。腾讯称「快速蓄电」，游民称「大充」" },
+    lightning_charge_min: { zh: "小蓄电（+25，半血 +35）", cat: "state", key: true, note: "actp2：mIncBarrierValue 25；血量 ≤50% 时 dtt_unq 覆盖表改为 35（exe 0x140a27ae0）。《再会了，雷狼龙》为 100。社区：抬头蓄电，时间长" },
+    short_lightning_charge: { zh: "倒地追击蓄电（+25，半血 +35）", cat: "state", key: true, note: "actp2：SHORT_LIGHTNING_CHARGE +25；血量 ≤50% 时 35。《再会了，雷狼龙》为 100。只在目标倒地（helpless_0）且未超带电时出现（主控 node_013~015）" },
+    lightning_charge_max: { zh: "大蓄电（+50，半血 +75）", cat: "state", key: true, note: "actp2：+50；血量 ≤50% 时 75。《再会了，雷狼龙》为 100。只出现在连段末尾（前顶→后跳→飞扑→大蓄电 等）。腾讯称「快速蓄电」，游民称「大充」" },
     charge_trans: { zh: "进入超带电（演出）", cat: "state", note: "actp2：CHARGE_TRANS +100。电量满 100 后程序切到 THK_60：清除刚蓄电标记 → 后跳转身 → 本动作" },
     charge_trans2: { zh: "进入超带电（愤怒时）", cat: "state", note: "Rage_Enter：已超带电时用它代替普通威吓进入愤怒" },
     catch_success_lightning: { zh: "捕食成功·蓄电（+50）", cat: "attack", note: "按住猎人后蓄电，actp2：CATCH_SUCCESS_LIGHTNING_END +50" },
@@ -139,7 +139,7 @@
     "function#106(1)": { zh: "反击追击方向标记为假", src: "exe", eval: (s) => !flagOr(s, "function#106()", true) },
     "function#107(1)": { zh: "改以反击来源为目标（副作用）", src: "exe", note: "exe：107 读 +0x209e8 保存的对象，有效时把 AI 目标设为它", eval: () => true },
     "function#108()": { zh: "反击追击分支标记（+0x20a08，初始为真）", src: "exe", toggle: true, default: true, note: "exe：108() 读 +0x20a08；对象初始化为 1。为真时追击连段先接捕食判定再出拳" },
-    "function#B9()": { zh: "历战个体（推测）", src: "推测", toggle: true, note: "exe：B9() 读 AI 对象 +0x8e6；刷怪时由任务怪物数据写入，指引之地（stage 109）按地区等级判定后置 1，紧邻 SharpPluginLoader 标注的难度索引 +0x8AC——推测为「历战」标志。雷狼龙初始化 0x140a27f10 在它为真时把电量直接设为上限（开场即超带电），超带电期间的伤害累计也会多乘一个倍率。THK 中：冲撞/后跳之后的 15% 分支在 1000 内出前顶连段 G122，否则出重拳" },
+    "function#B9()": { zh: "历战个体（推测）", src: "推测", toggle: true, note: "exe：B9() 读 AI 对象 +0x8e6；刷怪时由任务对象里逐个怪物的一个字节（+0x38e 起）写入，《再会了，雷狼龙》q66865 的雷狼龙历战标志为 0，B9 为假；指引之地（stage 109）按地区等级判定后置 1，紧邻 SharpPluginLoader 标注的难度索引 +0x8AC——推测为「历战」标志。雷狼龙初始化 0x140a27f10 在它为真时把电量直接设为上限（开场即超带电），超带电期间的伤害累计也会多乘一个倍率。THK 中：冲撞/后跳之后的 15% 分支在 1000 内出前顶连段 G122，否则出重拳" },
     "function#2D(1)": { zh: "目标是随从猫", src: "exe", toggle: true, note: "exe：2D(1) 检查目标对象标志 bit14（uOtomo）。为真时主控改走 node_061 的随从猫攻击表" },
     "function#45()": { zh: "当前动作带特殊属性（跳过大型怪检查）", src: "推测", toggle: true },
     "function#5D()": { zh: "丢失目标视野（烟雾弹）", toggle: true },

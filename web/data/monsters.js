@@ -18,7 +18,7 @@ MHWI.monsters = [
     files: ["data/em023_05.js", "data/em023_05.anno.js", "data/em023_05.notes.js"],
   },
   {
-    key: "em057_00", zh: "雷狼龙", en: "Zinogre", group: "牙龙种", status: "ready", alias: "Zinogre 超带电",
+    key: "em057_00", zh: "雷狼龙", en: "Zinogre", group: "牙龙种", status: "ready", alias: "Zinogre 超带电 再会了雷狼龙 q66865",
     files: ["data/em057_00.js", "data/em057_00.anno.js", "data/em057_00.notes.js"],
   },
 ];
