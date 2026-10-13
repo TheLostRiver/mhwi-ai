@@ -165,7 +165,7 @@
     "function#112(0,1)": { zh: "刚被钩爪猛撞倒地", src: "exe", toggle: true, note: "exe 逆向：112(p1,p2) = p2 ≥ 「自上次被钩爪猛撞倒地(L2/FLY_SWITCH_L4_DAMAGE_CLAW_GRAB_DOWN)以来的出招计数」。112(0,1) 即倒地后紧接着的判定。xlsx 曾猜测为角色滑坡或投石机全弹" },
     "function#113(3,40)": { zh: "目标血量 ≤ 40%", src: "exe", toggle: true, note: "exe：113(op,v) 取当前目标的 当前血量 ÷ 最大血量 ×100（猎人 +0x7630 血量结构的 +0x64 / +0x60，取整），op 3 = 小于等于。目标不在受击硬直时，二阶段 30%、三阶段 50% 在主攻击后追加一招。火事场（血量 ≤35%）的玩家天然满足。xlsx：正常一局测试从未出现" },
     "function#5D()": { zh: "丢失目标视野（烟雾弹）", src: "xlsx", toggle: true },
-    "function#108()": { zh: "《黑龙》特别任务：NPC 反击事件窗口", src: "exe", toggle: true, note: "exe：任务号 == 51612、任务脚本已用 SetActiveNpcToEm013_qp 激活 NPC 事件、一阶段、本次还没出过反击动作（L2_SWITCH_L4_COUNTER_BODY_PRESS / _BREATH）、且某个计量（+0x18378）降到任务设定的百分比（Em013CounterHpPercentSet_em）以下时为真。为真时一阶段保持二足：四足会站起、不再转四足、不出四足特殊表。《传说中的黑龙》中恒为假" },
+    "function#108()": { zh: "《黑龙》特别任务：NPC 反击事件窗口", src: "exe", toggle: true, note: "exe：任务号 == 51612、任务脚本已用 SetActiveNpcToEm013_qp 激活 NPC 事件、一阶段、本次还没出过反击动作（L2_SWITCH_L4_COUNTER_BODY_PRESS / _BREATH）、且胸部反击槽（+0x18378，见概览「胸部反击下压」）降到任务设定的百分比（Em013CounterHpPercentSet_em）以下时为真。为真时一阶段保持二足：四足会站起、不再转四足、不出四足特殊表。《传说中的黑龙》中恒为假" },
     "function#109()": { zh: "《黑龙》特别任务：开场目标设为事件点", src: "exe", toggle: true, note: "exe：一阶段、任务号 == 51612、NPC 事件已激活、场景里存在 17 号事件对象时，把 AI 的目标点设为该对象坐标并返回真（触发开场首招 G139）。《传说中的黑龙》中恒为假" },
     "function#10B()": { zh: "正在终极形态吐息 / 击龙枪倒地 / 四足咆哮", src: "exe", toggle: true, note: "exe 逆向：当前动作是 FLY_STAGE_BREATH_FINAL_MODE_02、击龙枪倒地(231~233) 或 L4_BIND_VOICE 时为真；Rage_Enter 里据此跳过愤怒咆哮" },
     "function#10C()": { zh: "索敌后的副作用调用", src: "推测", toggle: true },
