@@ -140,6 +140,29 @@ const REPORTS = {
     out.push(availability(combos, { maxDist: 9000, outer: 10000, reachable: true }));
     return out;
   },
+  em050_00() {
+    const D = [[300, "≤450"], [650, "450~875"], [1100, "875~1400"], [1800, "1400~2250"], [2600, "2250~3000"], [3250, "3000~3500"], [3800, "3500~4000"]];
+    const A = [[0, "正面 0°"], [90, "侧面 90°"], [180, "背后 180°"]];
+    const post = { RegisterVar1: 1, RegisterVar2: 5 };
+    const out = [];
+    out.push("> 以下表格由 `node scripts/report.js em050_00` 对 THK 全路径枚举精确计算生成：属性切换/起降计数都未到阈值（本轮不切换、不起降）、目标是猎人且未倒地、未破角、HP>75%、R8/R9 为 0（上一轮没有普通攻击与大招记忆）。「短连段轮」= R6 为 0（本轮必走短连段），「长连段轮」= 未愤怒时 R6 已满（本轮必走长连段）。每格列出本轮出招序列及概率（已略去移动/转身/后续段），`A→B` 表示同一轮内的连段。模拟假设：猎人原地不动，冲刺/滑翔接近后距离 = 停止距离，拜年、凤凰天翔落地后视为贴身（400、正对）。\n");
+    const combos = [
+      ["炎·短连段轮", { elem: 1 }], ["炎·长连段轮", { elem: 1, regs: { RegisterVar6: 4 } }],
+      ["冰·短连段轮", { elem: 2 }], ["冰·长连段轮", { elem: 2, regs: { RegisterVar6: 4 } }],
+      ["龙（由炎）起飞前·短连段轮", { elem: 3, fromFire: true }],
+      ["龙 已飞过·短连段轮", { elem: 3, regs: { ...post } }], ["龙 已飞过·长连段轮", { elem: 3, regs: { ...post, RegisterVar6: 4 } }],
+      // 空中每轮先滑翔到目标 200 内（G359 → G371），猎人不动时只会出 ≤500 的招；
+      // 这里打开 11(900) 跳过滑翔，按「滑翔结束、出招判定时猎人所在距离」计算
+      ["炎·空中", { elem: 1, flying: true, flags: { "function#11(900)": true } }],
+      ["冰·空中", { elem: 2, flying: true, flags: { "function#11(900)": true } }],
+      ["龙·空中", { elem: 3, flying: true, flags: { "function#11(900)": true } }],
+    ];
+    for (const [title, over] of combos) out.push(table(over.flying ? `${title}（按出招判定时的距离；猎人不动时滑翔后总在 200 内）` : title, over, D, A));
+    out.push("### 招式出现范围（各状态下的最大出现概率）\n");
+    out.push("在 0~4500 距离、0~359° 的判定等价网格上逐格精确计算，取每个招式能达到的最大出现概率；`—` 表示该状态下主循环不会出这招。\n");
+    out.push(availability(combos, { maxDist: 4000, outer: 4500, reachable: true }));
+    return out;
+  },
 };
 if (!REPORTS[key]) throw new Error("没有为 " + key + " 配置报表");
 const out = REPORTS[key]();

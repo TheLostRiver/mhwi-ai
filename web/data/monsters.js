@@ -6,6 +6,10 @@ MHWI.monsters = [
     files: ["data/em013_00.js", "data/em013_00.anno.js", "data/em013_00.notes.js"],
   },
   {
+    key: "em050_00", zh: "煌黑龙", en: "Alatreon", group: "古龙种", status: "ready", alias: "Alatreon 煌黑 审判",
+    files: ["data/em050_00.js", "data/em050_00.anno.js", "data/em050_00.notes.js"],
+  },
+  {
     key: "em124_00", zh: "历战王冰呪龙", en: "Arch-Tempered Velkhana", group: "古龙种", status: "ready", alias: "冰咒龙 王冰 Velkhana",
     files: ["data/em124_00.js", "data/em124_00.anno.js", "data/em124_00.notes.js"],
   },
