@@ -136,7 +136,7 @@
       <div class="sim reveal">
         <aside class="ctrl panel" id="sim-ctrl"></aside>
         <section class="panel radar-wrap">
-          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small><span class="info" data-tip="扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度从${esc(UI.ctx.anno.monster.zh)}正面顺时针计（右侧为正）。距离为游戏单位（约 1 = 1cm）。">i</span></h2>
+          <h2>威胁罗盘 <small>TOP-DOWN · 点击或拖动设定猎人位置</small><span class="info" data-tip="扇区按 THK 中出现过的全部距离/角度阈值切分，每格取中点精确计算；轮廓仅为示意。角度从${esc(UI.ctx.anno.monster.zh)}正面顺时针计（右侧为正）。距离为游戏单位（约 1 = 1cm）。距离阈值 ≤ 含边界、> 不含；角度区间两端都含。">i</span></h2>
           <div class="readout" id="readout"></div>
           <svg class="radar" id="radar" viewBox="0 0 ${SIZE} ${SIZE}"></svg>
           <div class="radar-legend">
@@ -189,7 +189,7 @@
     UI.$("#sim-ctrl").innerHTML = `
       <h2>状态 <small>STATE</small></h2>
       ${segs}${chks}
-      <div class="field"><span class="lbl">HP <b id="hp-v" class="mono">${s.hp}%</b></span><input type="range" id="hp" min="0" max="100" value="${s.hp}" style="--fill:${s.hp}%"></div>
+      <div class="field"><span class="lbl">HP <b id="hp-v" class="mono">${s.hp}%</b><span class="info" data-tip="游戏把血量按 当前 ÷ 最大 × 100 截断取整后再和阈值比较，这里的 HP 就是这个整数：49 表示实际 49.0%~49.99%。">i</span></span><input type="range" id="hp" min="0" max="100" value="${s.hp}" style="--fill:${s.hp}%"></div>
       <div class="field"><span class="lbl">猎人站位</span>
         <div class="row">${UI.stepper({ id: "dist", step: 50, min: 0, value: Math.round(s.dist) })} 距离</div>
         <div class="row" style="margin-top:6px">${UI.stepper({ id: "angle", step: 5, value: Math.round(s.angle) })} 角度°</div>

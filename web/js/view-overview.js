@@ -4,6 +4,12 @@
   const UI = MHWI.ui;
   const esc = UI.esc;
 
+  /** 全站统一的区间写法（exe 已核对 THK 的距离 / 角度 / 血量比较方式） */
+  const NOTATION =
+    "**记号**：距离 ≤N 含 N，>N 不含 N；「>A 且 ≤B」即两档之间（THK 依次判断 ≤A、≤B，区间都是左开右闭）。" +
+    "角度从正面顺时针计，THK 的角度区间两端都含。" +
+    "血量「HP≤N%」按游戏的算法：当前 ÷ 最大 × 100 后**截断取整**再比较，所以实际 49.9% 算作 49%，HP≤49% 即实际血量 <50%，HP>75% 即实际 ≥76%。";
+
   /** notes 里的轻量标记：[[file.node]] → 代码链接，{{sim:query|文字}} → 模拟器链接，**x** → 强调，空行 → 分段 */
   UI.richText = function (s) {
     return esc(s)
@@ -35,6 +41,7 @@
           <div>
             <div class="section-title">档案摘要 <small>ABSTRACT</small></div>
             <div class="ov-lede">${UI.richText(notes.lede || "")}</div>
+            <p class="ov-notation muted">${UI.richText(NOTATION + (notes.notation ? " " + notes.notation : ""))}</p>
           </div>
           <div>
             <div class="stats">${st.map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("")}</div>

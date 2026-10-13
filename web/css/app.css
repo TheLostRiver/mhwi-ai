@@ -368,6 +368,8 @@ table.grid tr:hover td { background: rgba(255,255,255,.015); }
 .ov-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin-bottom: 24px; }
 .ov-lede { font: 17px/1.9 var(--f-display); color: var(--bone); letter-spacing: .03em; }
 .ov-lede em { font-style: normal; color: var(--ember-2); }
+.ov-notation { margin: 14px 0 0; font-size: 12.5px; line-height: 1.75; }
+.ov-notation em { font-style: normal; color: var(--bone); }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .stat { background: var(--panel-solid); padding: 14px 16px; }
 .stat b { display: block; font: 600 28px/1.1 var(--f-display); color: var(--bone); }
@@ -423,6 +425,7 @@ details.fold[open] summary::before { content: "▾ "; }
 .radar-wrap { position: sticky; top: 56px; }
 .radar { width: min(100%, max(320px, calc(100vh - 340px))); aspect-ratio: 1; display: block; margin: 0 auto; cursor: crosshair; user-select: none; }
 .radar-wrap h2 .info { margin-left: auto; font: 12px var(--f-body); letter-spacing: 0; color: var(--ash); cursor: help; border: 1px solid var(--line); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; }
+.field .lbl .info { margin-left: 6px; font: 11px var(--f-body); letter-spacing: 0; color: var(--ash); cursor: help; border: 1px solid var(--line); border-radius: 50%; width: 15px; height: 15px; display: inline-grid; place-items: center; vertical-align: 1px; }
 .radar .ring { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar .ring.major { stroke: #5a4436; }
 .radar .ring-label { fill: var(--ash); font: 10px var(--f-mono); }
