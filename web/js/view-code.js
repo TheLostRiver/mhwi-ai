@@ -117,7 +117,7 @@
     renderBody(n.body, file, 1, out);
     const ctxName = UI.ctx.fileContext[file] || "";
     main.innerHTML = `
-      <div class="code-head"><h2>${esc(file)}.${esc(node)}</h2><span class="tag">${esc(ctxName)}</span><span class="tag">index ${n.index}</span>
+      <div class="code-head"><h2>${esc(file)}.${esc(node)}</h2><span class="tag">${esc(ctxName)}</span><span class="tag" title="THK 文件里的原始节点序号，与游戏日志一致。node_NNN 是 Leviathon 去掉空节点后重排的编号（社区注释表、文章也用这套）">原始序号 ${n.index}</span>
         <span style="font:600 16px var(--f-display);color:var(--gold)">${esc(info.zh || "")}</span></div>
       ${info.note ? `<p class="code-head note">${esc(info.note)}</p>` : ""}
       <div class="src">
