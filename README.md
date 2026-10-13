@@ -54,7 +54,21 @@ node scripts/sim.js em023_05 enraged=1 pump=1 dist=400 angle=90
 
 # 动作参数（.actp2）：按 Leviathon ActionDumps 的内部编号还原动作名，读取指定字段（如雷狼龙的电量增减）
 python tools/actp2.py extracted/em/em057/00/data/em057.actp2 94 mIncBarrierValue mDecBarrierValue
+
+# 打包 nack 给别人分析（保留空节点、编号 = 游戏原始序号）→ build/mhwi-nack.zip
+python tools/pack_nack.py
 ```
+
+### 节点编号：网页编号 ≠ 游戏原始序号
+
+Leviathon 默认会**丢掉空节点**（节点 id 为 0、只有一个全空段），剩下的节点从 0 起**连续重新编号**。`data/` 里的 nack 就是这样生成的（只加了 `-indexShow`），所以：
+
+- 网页、文档、`anno.js` / `notes.js` 里的 `node_NNN` 是重编后的号，**和游戏日志里的节点序号对不上**；
+- 节点头 `def node_NNN @ M` 里的 `M` 才是该节点在 THK 文件里的原始序号。例：煌黑龙 `em050_55` 的网页 `node_198 @ 224`，原始序号是 224。
+
+要和日志对照、或把 nack 给别人分析时，用完整输出：`python tools/decompile.py <key> --full`（加 `-nullShow -indexShow -idShow`，输出到 `build/nack_full/<key>/`），节点头为 `def node_NNN : <节点id> @ <原始序号>`，`NNN` 等于原始序号。`tools/pack_nack.py` 会对每只怪物生成完整输出，逐文件校验它与 `data/` 除编号和空节点外逐行一致，并附上 `编号对照.csv`（网页编号 ↔ 原始序号 ↔ 节点 id）。
+
+`data/` 不改成完整编号：网页注释与文档里的所有节点引用都基于默认编号。
 
 ## 部署
 
@@ -71,9 +85,10 @@ npx wrangler deploy        # 上传 web/ 目录；DNS 记录与证书由 Cloudfl
 ## 目录
 
 ```
-tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）、动作参数读取（actp2.py）
+tools/        解包（mhw_chunk.py）、反编译包装（decompile.py）、nack → JSON（nack2json.py）、动作参数读取（actp2.py）、nack 打包（pack_nack.py）
 scripts/      Node 端：往返校验、出招概率命令行、文档概率表生成
-data/<key>/   Leviathon 反编译结果（.fand / .nack）
+data/<key>/   Leviathon 反编译结果（.fand / .nack，默认编号，见「节点编号」）
+build/        打包输出（不入库）
 web/          交互网页；web/js/thk-core.js 是 THK 解释器（网页与脚本共用）
 docs/         分析文档
 third_party/  Leviathon（git submodule，GPLv3）
