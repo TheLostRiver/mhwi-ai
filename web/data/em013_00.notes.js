@@ -6,6 +6,7 @@
 MHWI.notes = MHWI.notes || {};
 MHWI.notes.em013_00 = {
   lede:
+    "本页按**《传说中的黑龙》**（q66845，可重复接取）分析；特别任务《黑龙》（q51612，5 次力尽、只能打一次）与它数值相同，只多几段该任务专属的分支，见「两个黑龙任务」。" +
     "黑龙的战斗 AI 由 14 个 THK 组成，核心只有两个：**Combat_Main（00）**负责每一轮「先做各种检查、再按 姿态×阶段×距离 查表选招」，" +
     "**Global（55）**是 142 个招式子程序。每选完一招就 reset 回到 [[em013_00.node_000]] 重新判定；" +
     "**距离决定用哪张表，角度只在表内挪动约 25~30% 的权重**，计数器（寄存器）控制转姿态、起飞降落与防连发。",
@@ -75,8 +76,12 @@ MHWI.notes.em013_00 = {
       body: "[[em013_00.node_046]] 先判 R6≥3 再判 R6≥7，≥7 分支永远不会执行。真实逻辑：前 3 次高台攻击不出横扫火，之后每次 20% 横扫火并清零。",
     },
     {
-      title: "任务 51612「黑龙」有专属 AI",
-      body: "解包任务文本确认 51612 是「黑龙 · 讨伐黑龙（5 次力尽）」。该任务进入战斗时会用开场招式 [[em013_55.node_139]]，一阶段姿态计数走 [[em013_00.node_011]]（多一个 108() 检查）。",
+      title: "两个黑龙任务：《传说中的黑龙》走默认 AI",
+      body: "《传说中的黑龙》q66845 与特别任务《黑龙》q51612 的能力档位（811）、多人档位（210）、地图、怪物专属任务 FSM 都完全相同。区别只在特别任务：① THK 里 6 处 quest_id(51612) 分支，实际生效都还要 108() / 109() 为真，而这两个函数在 exe 里本身就要求任务号是 51612，所以《传说中的黑龙》里这些分支永远不走；② 109()：开场把 AI 目标设为场景事件点，出开场首招 [[em013_55.node_139]]；③ 108()：任务脚本激活 NPC 事件后、某个计量降到任务设定的百分比以下、还没出过反击动作时，一阶段**保持二足**——四足会站起（[[em013_00.node_011]]）、不再 10% 转四足（[[em013_00.node_020]]）、不出四足特殊表（[[em013_00.node_022]]）；④ 任务主流程多了过场动画、NPC 弩炮/射击事件、无敌窗口，且不能放弃任务。exe 中黑龙本体代码有 6 处判断 51612，没有一处判断 66845。",
+    },
+    {
+      title: "高台判定看脚下的地面属性，不看高度",
+      body: "104()（一阶段）/ 104(1)（二三阶段）在 exe 里读的是猎人身上的一个状态位，它每帧由猎人**脚下碰撞面的属性**决定（碰撞系统 sCollision 给出的属性位）。所以只有站在带「高台」属性的地面上才算在高台；击龙枪那一格的网子外沿没有这个属性，黑龙会当你在地面（B 站《大剑黑龙高台须知》，已实测）。一阶段要连续两轮判定在高台才进入高台 AI（R2），二三阶段一轮即可。高台 AI 的招式只有高台火/蓄力火/横扫火/咬、车、飞行火球与直线火，**没有 Z 字火（S 火）、俯冲、孕吐**，这些只在普通地面/飞行表里；想在高台附近引 S 火，必须让黑龙决策时判定你不在高台。",
     },
     {
       title: "遮挡会把远距离变成车",
@@ -113,6 +118,9 @@ MHWI.notes.em013_00 = {
     { claim: "110(2)：30% 俯冲，攻击 2 次后 50% 俯冲", source: "xlsx", verdict: "partial", detail: "飞行 ≤1000 时 30%，>1000 时 20%；R13≥2 后 50% [[em013_00.node_018]]" },
     { claim: "高台招 R6：7 招必横扫火", source: "xlsx", verdict: "diff", detail: "≥7 分支排在 ≥3 之后，是死代码；实际 ≥3 后每次 20% [[em013_00.node_046]]" },
     { claim: "单火球+扇火连携（089）实机未使用", source: "xlsx", verdict: "ok", detail: "全项目没有任何节点调用 [[em013_55.node_089]]" },
+    { claim: "站在击龙枪那一格的外侧边沿时，黑龙判定你在地面，出孕吐、俯冲、S 火等招", source: "B站", verdict: "ok", detail: "实测确认。exe：高台判定 104() 读猎人脚下碰撞面的属性，边沿没有高台属性；高台 AI 不含 Z 字火/俯冲/孕吐，它们只在普通表里" },
+    { claim: "高台 S 火头部硬直后向外翻滚再跳劈，滞空期间黑龙出地面招，有概率引出下一个 S 火", source: "B站", verdict: "partial", detail: "与机制一致：黑龙决策时只要判定你不在高台属性的地面上，就走普通表（含 Z 字火）。但人在空中时这个属性如何取值，exe 里没有直接确认" },
+    { claim: "S 火头部落点与破头时的倒地位置、第一刀命中时站在头部左/右有关", source: "B站", verdict: "na", detail: "这是动作本身的位移/追踪，不在 THK 选招逻辑里" },
     { claim: "139 在总控中没有导向节点", source: "xlsx", verdict: "partial", detail: "Combat_Main 确实不调用，但 Combat_Enter / Non_Combat_Main / Target_Lost 在任务 51612 中会调用 [[em013_55.node_139]]" },
     { claim: "骑乘攻击 12 次后吼", source: "xlsx", verdict: "ok", detail: "R12 ≥12 [[em013_11.node_017]]" },
     { claim: "开局约 15~18 秒不扇火", source: "B站", verdict: "partial", detail: "现象吻合但机制不是计时：exe 中 10E() = 开局计数 < 5（em013.dtt_unq），计的是 AI 出招次数，咆哮与动作内部衔接不计；按每招约 3 秒，5 招≈15~20 秒" },
@@ -127,6 +135,7 @@ MHWI.notes.em013_00 = {
     { title: "黑龙THK注释.xlsx", url: "https://github.com/TheLostRiver/mhwi-ai", note: "社区玩家的节点/寄存器/条件注释（本仓库根目录）" },
     { title: "九世深渊：黑龙AI重构的最后一块拼图，黑龙THK文件主要分支完全解读", url: "https://www.bilibili.com/opus/932887546921222162", note: "2024-05-21" },
     { title: "九世深渊：黑龙开局不扇火的秘密，黑龙ai中10E条件解析", url: "https://www.bilibili.com/opus/930951641929089095", note: "2024-05-14；回归球/烟雾弹实测" },
+    { title: "高-木：大剑黑龙高台须知", url: "https://www.bilibili.com/opus/959866212182917145", note: "2024-07-30；高台边沿判定与 S 火落点" },
     { title: "AsteriskAmpersand / Leviathon", url: "https://github.com/AsteriskAmpersand/Leviathon", note: "THK 编译/反编译器（GPLv3）" },
     { title: "Leviathon Language Reference", url: "https://github.com/Ezekial711/MonsterHunterWorldModding/wiki/Leviathon-Language-Reference", note: "nack 语言与执行语义" },
     { title: "MonsterHunterWorldModding Wiki", url: "https://github.com/Ezekial711/MonsterHunterWorldModding/wiki", note: "THK / 怪物 AI 资料汇总" },

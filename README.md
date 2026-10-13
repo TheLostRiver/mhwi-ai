@@ -102,7 +102,7 @@ third_party/  Leviathon（git submodule，GPLv3）
 
 - 解包逻辑移植自 [JodoZT/MHWNoChunk](https://github.com/JodoZT/MHWNoChunk) 与 [mhvuze/WorldChunkTool](https://github.com/mhvuze/WorldChunkTool)
 - THK 反编译：[AsteriskAmpersand/Leviathon](https://github.com/AsteriskAmpersand/Leviathon)，语言规范见 [MonsterHunterWorldModding Wiki](https://github.com/Ezekial711/MonsterHunterWorldModding/wiki/Leviathon-Language-Reference)
-- 黑龙社区资料：`黑龙THK注释.xlsx`、九世深渊《[黑龙AI重构的最后一块拼图](https://www.bilibili.com/opus/932887546921222162)》《[黑龙开局不扇火的秘密](https://www.bilibili.com/opus/930951641929089095)》
+- 黑龙社区资料：`黑龙THK注释.xlsx`、九世深渊《[黑龙AI重构的最后一块拼图](https://www.bilibili.com/opus/932887546921222162)》《[黑龙开局不扇火的秘密](https://www.bilibili.com/opus/930951641929089095)》、高-木《[大剑黑龙高台须知](https://www.bilibili.com/opus/959866212182917145)》
 - 历战王冰呪龙社区资料：`王冰THK注释.xlsx`、九世深渊《[雪花沉睡 历战王冰呪龙战斗AI全解析](https://www.bilibili.com/opus/953519534698921990)》
 - 煌黑龙资料：noderoo《[Alatreon AI Observations](https://rentry.co/p8bhu2hx)》、游民星空 雨酱《[煌黑龙招式拆解及打法详解](https://www.gamersky.com/handbook/202007/1306235.shtml)》与 Mr独行远方《[煌黑龙起飞机制探究](https://www.gamersky.com/handbook/202008/1316011.shtml)》、巴哈姆特 肆伍陸《[煌黑龍攻略情報彙整](https://forum.gamer.com.tw/C.php?bsn=5786&snA=157377)》
 - 雷狼龙资料：腾讯新闻 爱游戏的Solay《[雷狼龙超带电机制与连段解析](https://news.qq.com/rain/a/20200722A0WSR400)》、游民星空 SweetPotatoH「[超带电状态](https://www.gamersky.com/handbook/202005/1288897.shtml)」

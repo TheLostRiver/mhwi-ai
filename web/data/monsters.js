@@ -2,7 +2,7 @@
 MHWI.monsterGroups = ["古龙种", "飞龙种", "牙龙种", "牙兽种", "兽龙种", "鸟龙种", "海龙种", "蛇龙种", "鱼龙种", "甲虫种"];
 MHWI.monsters = [
   {
-    key: "em013_00", zh: "黑龙", en: "Fatalis", group: "古龙种", status: "ready",
+    key: "em013_00", zh: "黑龙", en: "Fatalis", group: "古龙种", status: "ready", alias: "Fatalis 传说中的黑龙 高台",
     files: ["data/em013_00.js", "data/em013_00.anno.js", "data/em013_00.notes.js"],
   },
   {
