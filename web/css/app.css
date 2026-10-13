@@ -221,6 +221,7 @@ body.dex-lock { overflow: hidden; }
 .tag.src-rentry { border-color: #3f5a4f; color: #a8d8c0; }
 .tag.src-巴哈 { border-color: #4a3f5a; color: #c8b0e8; }
 .tag.src-实测 { border-color: #5a5530; color: #e8dc8c; }
+.tag.src-社区 { border-color: #3a4a5a; color: #a8c4dc; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 20px; background: rgba(255,91,31,.1); border: 1px solid rgba(255,91,31,.3); color: var(--bone); font-size: 12.5px; white-space: nowrap; }
 .chip.minor { background: transparent; border-color: var(--line); color: var(--bone-dim); }
 .chip.key { background: rgba(255,91,31,.22); border-color: var(--ember); box-shadow: 0 0 10px -2px var(--ember-glow); }
@@ -395,6 +396,8 @@ table.grid tr:hover td { background: rgba(255,255,255,.015); }
 .finding { border: 1px solid var(--line); border-left: 3px solid var(--ember); padding: 12px 14px; background: rgba(26,20,17,.6); }
 .finding h3 { margin: 0 0 6px; font: 600 14.5px/1.4 var(--f-display); letter-spacing: .05em; }
 .finding p { margin: 0; color: var(--bone-dim); font-size: 13px; }
+.finding.wide { grid-column: 1 / -1; }
+.pb { display: block; height: 8px; }
 .finding .refs { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ---------- 模拟器 ---------- */

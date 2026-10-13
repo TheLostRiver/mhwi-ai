@@ -4,12 +4,13 @@
   const UI = MHWI.ui;
   const esc = UI.esc;
 
-  /** notes 里的轻量标记：[[file.node]] → 代码链接，{{sim:query|文字}} → 模拟器链接，**x** → 强调 */
+  /** notes 里的轻量标记：[[file.node]] → 代码链接，{{sim:query|文字}} → 模拟器链接，**x** → 强调，空行 → 分段 */
   UI.richText = function (s) {
     return esc(s)
       .replace(/\[\[(\w+)\.(node_\d+)(?:\|([^\]]+))?\]\]/g, (_, f, n, label) => UI.nodeLink(f, n, { label: label || `${f.slice(-2)}.${n.slice(5)}` }))
       .replace(/\{\{sim:([^|}]*)\|([^}]+)\}\}/g, (_, q, label) => `<a href="#/${UI.ctx.key}/sim/${q.replace(/&amp;/g, "&")}">${label}</a>`)
-      .replace(/\*\*([^*]+)\*\*/g, "<em>$1</em>");
+      .replace(/\*\*([^*]+)\*\*/g, "<em>$1</em>")
+      .replace(/\n\n/g, '<span class="pb"></span>');
   };
 
   function stats() {
@@ -57,7 +58,7 @@
         </div>
         <section style="margin-top:24px">
           <div class="section-title">关键结论 <small>FINDINGS · 均可点击跳转到代码或模拟器复现</small></div>
-          <div class="findings">${(notes.findings || []).map((f) => `<article class="finding"><h3>${esc(f.title)}</h3><p>${UI.richText(f.body)}</p></article>`).join("")}</div>
+          <div class="findings">${(notes.findings || []).map((f) => `<article class="finding${f.wide ? " wide" : ""}"><h3>${esc(f.title)}</h3><p>${UI.richText(f.body)}</p></article>`).join("")}</div>
         </section>
       </div>`;
   }
